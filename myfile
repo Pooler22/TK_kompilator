@@ -1,0 +1,140 @@
+; Symbol table dump
+; 0 Global procedure read
+; 1 Global procedure write
+; 2 Global label lab0
+; 3 Global id sort
+; 4 Global id input
+; 5 Global id output
+; 6 Global variable j integer addr offset 0
+; 7 Global variable i integer addr offset 4
+; 8 Global variable o integer addr offset 8
+; 9 Global array p array [1..10] integer addr offset 12
+; 10 Global number 1 integer
+; 11 Global number 10 integer
+; 12 Global variable b integer addr offset 52
+; 13 Global procedure czytajtab
+; 14 Local array a ref integer addr offset 8
+; 15 Local number 1 integer
+; 16 Local number 10 integer
+; 17 Local variable i integer addr offset -4
+; 18 Local label lab1
+; 19 Local label lab2
+; 20 Local number 11 integer
+; 21 Local label lab3
+; 22 Local variable $t0 integer addr offset -8
+; 23 Local number 0 integer
+; 24 Local label lab4
+; 25 Local id read
+; 26 Local variable $t1 integer addr offset -12
+; 27 Local number 4 integer
+; 28 Local variable $t2 ref integer addr offset -16
+; 29 Local variable $t3 integer addr offset -20
+
+; Symbol table dump
+; 0 Global procedure read
+; 1 Global procedure write
+; 2 Global label lab0
+; 3 Global id sort
+; 4 Global id input
+; 5 Global id output
+; 6 Global variable j integer addr offset 0
+; 7 Global variable i integer addr offset 4
+; 8 Global variable o integer addr offset 8
+; 9 Global array p array [1..10] integer addr offset 12
+; 10 Global number 1 integer
+; 11 Global number 10 integer
+; 12 Global variable b integer addr offset 52
+; 13 Global procedure czytajtab
+; 14 Global procedure bubblesort
+; 15 Local array a ref integer addr offset 8
+; 16 Local number 1 integer
+; 17 Local number 10 integer
+; 18 Local variable i integer addr offset -4
+; 19 Local variable j integer addr offset -8
+; 20 Local variable tmp real addr offset -16
+; 21 Local label lab5
+; 22 Local label lab6
+; 23 Local number 11 integer
+; 24 Local label lab7
+; 25 Local variable $t4 integer addr offset -20
+; 26 Local number 0 integer
+; 27 Local label lab8
+; 28 Local variable $t5 integer addr offset -24
+; 29 Local label lab9
+; 30 Local label lab10
+; 31 Local label lab11
+; 32 Local variable $t6 integer addr offset -28
+; 33 Local label lab12
+; 34 Local variable $t7 integer addr offset -32
+; 35 Local number 4 integer
+; 36 Local variable $t8 ref integer addr offset -36
+; 37 Local variable $t9 integer addr offset -40
+; 38 Local variable $t10 ref integer addr offset -44
+; 39 Local label lab13
+; 40 Local variable $t11 integer addr offset -48
+; 41 Local label lab14
+; 42 Local label lab15
+; 43 Local variable $t12 integer addr offset -52
+; 44 Local variable $t13 ref integer addr offset -56
+; 45 Local variable $t14 integer addr offset -60
+; 46 Local variable $t15 ref integer addr offset -64
+; 47 Local variable $t16 integer addr offset -68
+; 48 Local variable $t17 ref integer addr offset -72
+; 49 Local variable $t18 integer addr offset -76
+; 50 Local variable $t19 ref integer addr offset -80
+; 51 Local label lab16
+; 52 Local variable $t20 integer addr offset -84
+; 53 Local variable $t21 integer addr offset -88
+
+; Symbol table dump
+; 0 Global procedure read
+; 1 Global procedure write
+; 2 Global label lab0
+; 3 Global id sort
+; 4 Global id input
+; 5 Global id output
+; 6 Global variable j integer addr offset 0
+; 7 Global variable i integer addr offset 4
+; 8 Global variable o integer addr offset 8
+; 9 Global array p array [1..10] integer addr offset 12
+; 10 Global number 1 integer
+; 11 Global number 10 integer
+; 12 Global variable b integer addr offset 52
+; 13 Global procedure czytajtab
+; 14 Global procedure bubblesort
+; 15 Global procedure wypisztab
+; 16 Local array a ref integer addr offset 8
+; 17 Local number 1 integer
+; 18 Local number 10 integer
+; 19 Local variable i integer addr offset -4
+; 20 Local label lab17
+; 21 Local label lab18
+; 22 Local number 11 integer
+; 23 Local label lab19
+; 24 Local variable $t22 integer addr offset -8
+; 25 Local number 0 integer
+; 26 Local label lab20
+; 27 Local id write
+; 28 Local variable $t23 integer addr offset -12
+; 29 Local number 4 integer
+; 30 Local variable $t24 ref integer addr offset -16
+; 31 Local variable $t25 integer addr offset -20
+
+; Symbol table dump
+; 0 Global procedure read
+; 1 Global procedure write
+; 2 Global label lab0
+; 3 Global id sort
+; 4 Global id input
+; 5 Global id output
+; 6 Global variable j integer addr offset 0
+; 7 Global variable i integer addr offset 4
+; 8 Global variable o integer addr offset 8
+; 9 Global array p array [1..10] integer addr offset 12
+; 10 Global number 1 integer
+; 11 Global number 10 integer
+; 12 Global variable b integer addr offset 52
+; 13 Global procedure czytajtab
+; 14 Global procedure bubblesort
+; 15 Global procedure wypisztab
+; 16 Global number 4 integer
