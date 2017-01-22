@@ -1,0 +1,10 @@
+; Symbol table dump
+; 0 Global procedure read
+; 1 Global procedure write
+; 2 Global label lab0
+; 3 Global variable x integer offset=0
+; 4 Global variable y integer offset=4
+; 5 Global variable g real offset=8
+; 6 Global variable h real offset=16
+; 7 Global variable $t0 integer offset=24
+; 8 Global variable $t1 real offset=28
