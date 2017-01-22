@@ -1,4 +1,4 @@
-	jump.i  #lab0
+			jump.i  #lab0
 czytajtab:
 	enter.i #20
 	mov.i #1,BP-4
