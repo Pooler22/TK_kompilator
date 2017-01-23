@@ -63,7 +63,7 @@ program:
 		'.'
 			{
 				writeToOutput("\n\texit\n");
-				writeAllToFile();
+				writeToFile();
 			}
 		eof
 	;
@@ -577,7 +577,7 @@ simple_expression:
 			}
 	| simple_expression SIGN term
 			{	//GENERUJE OPERACJE + LUB - ZWRACA WYNIK
-				int resultType=generateResultType($1, $3);
+				int resultType=getResultType($1, $3);
 				$$ = addTempSymbol(resultType);
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
 			}
@@ -593,7 +593,7 @@ term:
 		factor
 	| term MULOP factor
 			{	//ZWRACA WYNIK I ROBI OPERACJE DLA * MOD AND DIV
-				int resultType=generateResultType($1, $3); // oczekiwany typ wyniku
+				int resultType=getResultType($1, $3); // oczekiwany typ wyniku
 				$$ = addTempSymbol(resultType);//zwraca id w TS
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
 			}

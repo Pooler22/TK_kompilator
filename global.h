@@ -1,35 +1,18 @@
+#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <vector>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <utility>
 #include <list>
+#include "inc.h"
+
 using namespace std;
-// dane tablic
-struct arrayRange{
-	int start;//id w tablicy symboli
-	int stop;
-	int startVal;//wartość
-	int stopVal;
-	int argType;
-};
-// wpis w tablicy symboli
-struct Symbol{
-	string name;	 //nazwa lub numer (dla liczb)
-	int token;		 //typ tokenu mojego
-	int type;		 //rodzaj wartości int/real
-	int address;	 //adres (offset który został przydzielony)
-	arrayRange array;	 // dane tablicy// dla tablic
-	bool isReference;// czy jest referencją	domyślnie nie jest
-	bool isGlobal;		// zakres (true-globalny, false - lokalny)
-	list<pair<int,arrayRange> > parameters; // typy kolejnych parametrów (funkcja/procedura)
-	int returnType;		// typ zwracany (funkcja)// funkcja
-};
+
 int lookupForFunction(const char* );
 void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int leftVar, bool isValueLeft, int rightVar, bool isValueRight);
 extern bool isGlobal;//zmienna na aktualny zakres
@@ -45,7 +28,7 @@ void yyerror(char const* s);//funkcja błędu parsera
 extern vector<Symbol> SymbolTable;//TS
 extern ofstream stream;//stream do zapisu
 int yylex_destroy();//zabija parser
-int generateResultType(int a, int b);//generuje typ wyniku dla 2 operandów
+int getResultType(int a, int b);//generuje typ wyniku dla 2 operandów
 int getSymbolPosition(string symbolName="");//oblicza index w którym bedzie nowa zmienna np 12 dla global, -24 dla local
 int getSymbolSize(Symbol e);//podaje rozmiar Symbolu
 int addLabel();//tworzy kolejny label do skoku
@@ -55,11 +38,12 @@ extern FILE* yyin;//plik wejściowy dla leksera
 int lookup(const char* s);
 int insertNum(const char*, int);//wstawia num do ST jak nie istnieje
 void clearLocalSymbols();
-void writeAllToFile();
+void writeToFile();
 void writeIntToOutput(int);
 int lookupForFunction(const char *);
-//tokeny któe mogą wystąpić
 
+
+//tokeny któe mogą wystąpić
 #define _LABEL 1257
 #define _WRITE 1259
 #define _READ 1260

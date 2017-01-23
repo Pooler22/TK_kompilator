@@ -4,6 +4,7 @@
 using namespace std;
 
 ofstream stream;
+
 bool isGlobal = true;
 
 int main(int argc, char *argv[]) {
@@ -29,47 +30,41 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
-	//plik dla leksera
 	yyin = inputFile;
 
-	// ustaw zakres na globalny
-	isGlobal = true;
-
-	// otwórz plik wynikowy
 	stream.open(string(outputFileName)+".asm", ofstream::trunc);
 	if (!stream.is_open()) {
 		printf("Error: Cannot open output file");
 		return -1;
 	}
 
-	//wstaw do tablicy symboli read write i lab0
-	Symbol r;
-	r.name = string("read");
-	r.isGlobal = true;
-	r.isReference = false;
-	r.token = PROC;
-	SymbolTable.push_back(r);
+	Symbol read;
+	read.name = string("read");
+	read.isGlobal = true;
+	read.isReference = false;
+	read.token = PROC;
+	SymbolTable.push_back(read);
 
-	Symbol w;
-	w.name = string("write");
-	w.isGlobal = true;
-	w.isReference = false;
-	w.token = PROC;
-	SymbolTable.push_back(w);
+	Symbol write;
+	write.name = string("write");
+	write.isGlobal = true;
+	write.isReference = false;
+	write.token = PROC;
+	SymbolTable.push_back(write);
 
-	Symbol l;
-	l.name = string("lab0");
-	l.isGlobal = true;
-	l.isReference = false;
-	l.token = _LABEL;
-	SymbolTable.push_back(l);
+	Symbol lab0;
+	lab0.name = string("lab0");
+	lab0.isGlobal = true;
+	lab0.isReference = false;
+	lab0.token = _LABEL;
+	SymbolTable.push_back(lab0);
 
-	//jump.i #lab0
-	streamString << "\t\t\tjump.i  #" << l.name;
+	streamString << "\t\t\t" << "jump.i  #" << lab0.name;
 	stream.write(streamString.str().c_str(), streamString.str().size());
 
 	yyparse();
 	printSymbolTable();
+
 	stream.close();
 	fclose(inputFile);
 	yylex_destroy();

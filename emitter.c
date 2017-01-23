@@ -1,4 +1,5 @@
 #include "global.h"
+#include "inc.h"
 #include "parser.h"
 
 using namespace std;
@@ -6,10 +7,9 @@ using namespace std;
 extern ofstream stream;
 stringstream ss;
 
-
 //generuje typ wyniku operacji na 2 Symbolach
-int generateResultType(int a, int b) {
-	if (SymbolTable[a].type == REAL || SymbolTable[b].type == REAL) {
+int getResultType(int id1, int id2) {
+	if (SymbolTable[id1].type == REAL || SymbolTable[id1].type == REAL) {
 		return REAL;
 	} else {
 		return INTEGER;
@@ -17,15 +17,16 @@ int generateResultType(int a, int b) {
 }
 
 //funkcja zwraca typ Symbolów, jak adres to integer
-int getElementType(int index, bool isValue) {
-	if (!isValue) {
-		return INTEGER;
-	} else {
+int getSymbolType(int index, bool isValue) {
+	if (isValue) {
 		return SymbolTable[index].type;
+	}
+	else {
+		return INTEGER;
 	}
 }
 
-//zwraca mój token czyli w rzeczywistości liczbę na podstawie ciągu znaków
+//zwraca token czyli w rzeczywistości liczbę na podstawie ciągu znaków
 int getToken(const char *strValIn) {
 	string strVal = strValIn;
 	if (strVal.compare("+") == 0)
@@ -56,9 +57,9 @@ int getToken(const char *strValIn) {
 }
 
 //konwertuje 2 zmienne na ten sam typ (wyższy) przekazuje dane przez referencję
-void setIdenticalTypes(int &leftVar, bool isValueLeft, int &rightVar, bool isValueRight) {
-	int leftType = getElementType(leftVar, isValueLeft);//zaciąga typy
-	int rightType = getElementType(rightVar, isValueRight);
+void castToSameType(int &leftVar, bool isValueLeft, int &rightVar, bool isValueRight) {
+	int leftType = getSymbolType(leftVar, isValueLeft);
+	int rightType = getSymbolType(rightVar, isValueRight);
 
 	if (leftType != rightType) {
 		if (leftType == INTEGER && rightType == REAL) {
@@ -70,35 +71,35 @@ void setIdenticalTypes(int &leftVar, bool isValueLeft, int &rightVar, bool isVal
 			writeToOutputByToken(_INTTOREAL, newRightVar, isValueRight, rightVar, isValueRight, -1, true);
 			rightVar = newRightVar;
 		} else {
-			printf("Nierozpoznane typy zmiennych: %s %s\n", SymbolTable[leftVar].name.c_str(),
-			       SymbolTable[rightVar].name.c_str());
-			yyerror("Złe typy.");
+			yyerror("Niezgodnosc typow");
 		}
 	}
 }
 
 //dla := ustawia identyczny typ
-bool setIdenticalTypeToAssign(int resultVar, bool isValueResult, int rightVar, bool isValueRight) {
-	int resultType = getElementType(resultVar, isValueResult);
-	int rightType = getElementType(rightVar, isValueRight);
+bool castToSameTypeForAssign(int resultVar, bool isValueResult, int rightVar, bool isValueRight) {
+	int resultType = getSymbolType(resultVar, isValueResult);
+	int rightType = getSymbolType(rightVar, isValueRight);
+
 	if (resultType == rightType) {
 		return false;
 	} else {
 		if (resultType == INTEGER && rightType == REAL) {
 			writeToOutputByToken(_REALTOINT, resultVar, isValueResult, rightVar, isValueRight, -1, true);
 			return true;
-		} else if (resultType == REAL && rightType == INTEGER) {
+		}
+		else if (resultType == REAL && rightType == INTEGER) {
 			writeToOutputByToken(_INTTOREAL, resultVar, isValueResult, rightVar, isValueRight, -1, true);
 			return true;
-		} else {
-			printf("Niezgodność typów.: %s %s %d %d \n", SymbolTable[resultVar].name.c_str(),
-			       SymbolTable[rightVar].name.c_str(), resultType, rightType);
-			yyerror("Niezgodność typów.");
+		}
+		else {
+			yyerror("Niezgodnosc typow przy :=");
 			return false;
 		}
 	}
 }
 
+// todo:
 //wypisuje pojedyńczą zmienną dostosowywuje znak referencji, wartości, BP
 void writeVariable(int index, bool isValue) {
 	//jeżeli do wypisania jest liczba poprzedza ją znakiem # i wypisuje
@@ -163,7 +164,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		stream.write(res.c_str(), res.size());
 		ss.str(string());
 	} else if (operand >= _EQ && operand <= _L) {
-		setIdenticalTypes(leftVar, isValueLeft, rightVar, isValueRight);
+		castToSameType(leftVar, isValueLeft, rightVar, isValueRight);
 		operationType = ".i ";
 		if (SymbolTable[leftVar].type == REAL)
 			operationType = ".r ";
@@ -175,7 +176,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		else if (operand == _G) ss << "jg";
 		else if (operand == _L) ss << "jl";
 		ss << operationType;
-		
+
 		writeVariable(leftVar, isValueLeft);
 		ss << ",";
 		writeVariable(rightVar, isValueRight);
@@ -207,17 +208,17 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		ss << ",";
 		writeVariable(resultVar, isValueResult);
 	} else if (operand == ASSIGN) {
-		bool setSuccess = setIdenticalTypeToAssign(resultVar, isValueResult, rightVar, isValueRight);
+		bool setSuccess = castToSameTypeForAssign(resultVar, isValueResult, rightVar, isValueRight);
 		if (setSuccess) {
 			return;
-		} else {//jeżeli są tych samych typów jak były innych to funkcja setIdenticalTypeToAssign już przy konwersji je tam przepisała taka automatyzacja ;p
+		} else {//jeżeli są tych samych typów jak były innych to funkcja castToSameTypeForAssign już przy konwersji je tam przepisała taka automatyzacja ;p
 			ss << "\n\tmov" << operationType;
 			writeVariable(rightVar, isValueRight);
 			ss << ",";
 			writeVariable(resultVar, isValueResult);
 		}
 	} else if (operand == _PLUS || operand == _MINUS) {
-		setIdenticalTypes(leftVar, isValueLeft, rightVar, isValueRight);
+		castToSameType(leftVar, isValueLeft, rightVar, isValueRight);
 		ss << "\n";
 		if (operand == _MINUS)
 			ss << "\tsub" << operationType;
@@ -229,7 +230,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		ss << ",";
 		writeVariable(resultVar, isValueResult);
 	} else if (operand == _MUL || operand == _DIV || operand == _MOD || operand == _AND || operand == OR) {
-		setIdenticalTypes(leftVar, isValueLeft, rightVar, isValueRight);
+		castToSameType(leftVar, isValueLeft, rightVar, isValueRight);
 		ss << "\n";
 		if (operand == _MUL) ss << "\tmul";
 		else if (operand == _DIV) ss << "\tdiv";
@@ -262,7 +263,7 @@ void writeIntToOutput(int i) {
 	ss << i;
 }
 
-void writeAllToFile() {
+void writeToFile() {
 	stream.write(ss.str().c_str(), ss.str().size());
 	ss.str(string());//czyści
 }
