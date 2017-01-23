@@ -22,6 +22,7 @@ extern int lineno;//nr linii
 int yylex();//odpala lekser
 int yyparse();//odpala parser
 int lookupIfExist(const char* s);//sprawdza czy dane id jest już w tablicy w zakresie likalnym lub globalnym
+int lookupIfExistAndInsert(const char *s, int token, int type);
 int addTempSymbol(int type);//tworzy dodatkową zmienną dla obliczeń to "t" z zajęć
 int insert (const char* s, int token, int type);//wrzuca do TS
 void yyerror(char const* s);//funkcja błędu parsera

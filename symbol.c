@@ -7,7 +7,6 @@ vector <Symbol> SymbolTable;
 int variablesCount = 0;
 int labelsCount = 1;
 
-
 // alokuje nową zmienną tymczasową typu type
 int addTempSymbol(int type) {
 	stringstream ss;
@@ -147,6 +146,15 @@ int lookup(const char *s) {
 		}
 	}
 	return -1;
+}
+
+int lookupIfExistAndInsert(const char *s, int token, int type) {
+	int value = lookupIfExist(s);
+	if (value == -1)
+	{
+		value = insert(s, token, type);
+	}
+	return value;
 }
 
 int lookupIfExist(const char *s) {

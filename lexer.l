@@ -59,30 +59,15 @@ while								{return WHILE;}
 {assignop}					{return ASSIGN;}
 
 {id}								{
-											int value = lookupIfExist(yytext);
-											if (value == -1)
-											{
-												value = insert(yytext, ID, NONE);
-											}
-											yylval = value;
+											yylval = lookupIfExistAndInsert(yytext, ID, NONE);
 											return ID;
 										}
 {digits}						{
-											int value = lookupIfExist(yytext);
-											if (value == -1)
-											{
-												value = insert(yytext, NUM, INTEGER);
-											}
-											yylval = value;
+											yylval = lookupIfExistAndInsert(yytext, NUM, INTEGER);
 											return NUM;
 										}
 {num}								{
-											int value = lookupIfExist(yytext);
-											if (value == -1)
-											{
-												value = insert(yytext, NUM, REAL);
-											}
-											yylval = value;
+											yylval = lookupIfExistAndInsert(yytext, NUM, REAL);
 											return NUM;
 										}
 <<EOF>>							{return DONE;}
