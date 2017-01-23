@@ -96,14 +96,3 @@ dkms.conf
 bin/
 bin-debug/
 bin-release/
-
-.gitignore
-.idea/
-cmake-build-debug/
-emitter.c
-global.h
-lexer.l
-main.c
-makefile
-parser.y
-symbol.c
