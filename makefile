@@ -1,20 +1,23 @@
-all: comp
 cc = g++
 flags = -pedantic
-flex_param = -lfl
 objects = emitter.o lexer.o main.o parser.o symbol.o
 
-global.h: parser.h
+comp: $(objects)
+	$(cc) $(flags) $^ -o $@ -lfl
 lexer.c: lexer.l global.h
-	flex -o $@ $<
+	flex -o lexer.c lexer.l
 parser.c parser.h: parser.y
 	bison -o parser.c -d parser.y
+emitter.o: emitter.c parser.h global.h
+	$(cc) $(flags) -c emitter.c -o emitter.o
 lexer.o: lexer.c global.h
-	$(cc) $(flags) -c $< $(flex_param)
-%.o: %.c global.h
-	$(cc) $(flags) -c $< -o $@
-comp: $(objects)
-	$(cc) $(flags) $^ -o $@ $(flex_param)
+	$(cc) $(flags) -c lexer.c -o lexer.o
+main.o: main.c global.h
+	$(cc) $(flags) -c main.c -o main.o
+parser.o: parser.c parser.h global.h
+	$(cc) $(flags) -c parser.c -o parser.o
+symbol.o: symbol.c global.h
+	$(cc) $(flags) -c symbol.c -o symbol.o
 
 clean:
 	rm -f *.o
@@ -23,4 +26,4 @@ clean:
 	rm -f parser.c
 	rm -f parser.h
 
-.PHONY: all clean
+.PHONY : clean
