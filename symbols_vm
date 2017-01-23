@@ -14,7 +14,6 @@
 ; 12 Local number 1 integer
 ; 13 Local number 10 integer
 ; 14 Local variable i integer offset=-4
-; 15 Local number 1 integer
 ; 16 Local label lab1
 ; 17 Local label lab2
 ; 18 Local number 11 integer

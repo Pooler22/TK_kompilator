@@ -1379,14 +1379,14 @@ yyreduce:
 				{
 					SymbolTable[element].token = VAR;
 					SymbolTable[element].type = (yyvsp[-1]);
-					SymbolTable[element].address = generateNewVariablePosition(SymbolTable[element].name);
+					SymbolTable[element].address = getVariablePosition(SymbolTable[element].name);
 				}
 				else if((yyvsp[-1]) == ARRAY) // dla tablic zapisz również dodatkowe dane
 				{
 					SymbolTable[element].type = helpVarArray;
 					SymbolTable[element].token = (yyvsp[-1]);
 					SymbolTable[element].array = array_range;		// struktura zawierająca indeks początkowy i końcowy array
-					SymbolTable[element].address = generateNewVariablePosition(SymbolTable[element].name);
+					SymbolTable[element].address = getVariablePosition(SymbolTable[element].name);
 				}
 				else
 				{
@@ -1651,14 +1651,14 @@ yyreduce:
 				int index = (yyvsp[-1]);
 				if(SymbolTable[index].type == REAL)
 				{
-					int convertedVal = createAdditionalVariable(INTEGER);
+					int convertedVal = addTempVariable(INTEGER);
 					writeToOutputByToken(_REALTOINT, convertedVal, true, index, true, -1, true);
 					index = convertedVal;
 				}
 				// wyciagnij indeks array w tablicy symboli i jej poczatkowy indeks
 				int arrayId = (yyvsp[-3]);
 				int startIndex = SymbolTable[arrayId].array.start;
-				int realIndex = createAdditionalVariable(INTEGER); //zmienna na index startowy rzeczywisty
+				int realIndex = addTempVariable(INTEGER); //zmienna na index startowy rzeczywisty
 				writeToOutputByToken(_MINUS, realIndex, true, index, true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
 				//dodaj numy jak nie ma
 				int arrayElementSize = 0;
@@ -1673,7 +1673,7 @@ yyreduce:
 				}
 				//element * pozycja
 				writeToOutputByToken(_MUL, realIndex, true, realIndex, true, arrayElementSize, true);
-				int varWithAddresOfArrayElement = createAdditionalVariable(INTEGER);
+				int varWithAddresOfArrayElement = addTempVariable(INTEGER);
 				//adres początku tablicy + adres elementu w tablicy i mamy w efekcie adres z wartością w tablicy
 				writeToOutputByToken(_PLUS, varWithAddresOfArrayElement, true, arrayId, false, realIndex, true);
 				//ustaw, że jest to adres referentychny bo nie wskazuje na wartość lecz na wskaźnik pod którym jest wartość adresu, ustawienei typu na int/real
@@ -1768,7 +1768,7 @@ yyreduce:
 							if(SymbolTable[argsVector[i]].token == NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
-								int numVar = createAdditionalVariable(argumentType);
+								int numVar = addTempVariable(argumentType);
 								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argsVector[i], true);
 								id = numVar;
 							}
@@ -1776,7 +1776,7 @@ yyreduce:
 							int passedType = SymbolTable[id].type;
 							// typ argumentu funkcji i typ wartosci przekazywanej są różne (INT i REAL) - konwersja
 							if(argumentType != passedType){
-								int tempVar = createAdditionalVariable(argumentType);
+								int tempVar = addTempVariable(argumentType);
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
@@ -1793,7 +1793,7 @@ yyreduce:
 						if(SymbolTable[index].token==FUN)
 						{
 							// zmienna na wartość zwracaną
-							int id = createAdditionalVariable(SymbolTable[index].type);
+							int id = addTempVariable(SymbolTable[index].type);
 							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
 							incspCount+=4;	// zwiększ rozmiar
 							(yyval) = id;
@@ -1849,7 +1849,7 @@ yyreduce:
 			//skok jeżeli warunek spełniony
 			writeToOutputByToken(relopType, newLabelPass, true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			//wynik operacji RELOP czyli 0 lub 1
-			int resultVar = createAdditionalVariable(INTEGER);
+			int resultVar = addTempVariable(INTEGER);
 			int badVal = insertNumIfNE("0",INTEGER);
 			//ustawia resultVar na 0 (warunek nie spełniony, nie przeskoczyliśmy)
 			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, badVal, true);
@@ -1877,7 +1877,7 @@ yyreduce:
 				else
 				{
 					//operacja jak mamy liczbę ujemną
-					(yyval) = createAdditionalVariable(SymbolTable[(yyvsp[0])].type);
+					(yyval) = addTempVariable(SymbolTable[(yyvsp[0])].type);
 					int tempVar = insertNumIfNE("0",SymbolTable[(yyvsp[0])].type);
 					//SUB //odejmie od 0 naszą wartość z term
 					writeToOutputByToken((yyvsp[-1]), (yyval), true, tempVar, true, (yyvsp[0]), true);
@@ -1890,7 +1890,7 @@ yyreduce:
 #line 575 "parser.y" /* yacc.c:1646  */
     {	//GENERUJE OPERACJE + LUB - ZWRACA WYNIK
 				int resultType=generateResultType((yyvsp[-2]), (yyvsp[0]));
-				(yyval) = createAdditionalVariable(resultType);
+				(yyval) = addTempVariable(resultType);
 				writeToOutputByToken((yyvsp[-1]), (yyval), true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			}
 #line 1897 "parser.c" /* yacc.c:1646  */
@@ -1899,7 +1899,7 @@ yyreduce:
   case 54:
 #line 581 "parser.y" /* yacc.c:1646  */
     {	//GENERUJE OR ZWRACA WYNIK
-				int tempVar = createAdditionalVariable(INTEGER);
+				int tempVar = addTempVariable(INTEGER);
 				writeToOutputByToken(OR, tempVar, true, (yyvsp[-2]), true, (yyvsp[0]), true);
 				(yyval) = tempVar;
 			}
@@ -1910,7 +1910,7 @@ yyreduce:
 #line 591 "parser.y" /* yacc.c:1646  */
     {	//ZWRACA WYNIK I ROBI OPERACJE DLA * MOD AND DIV
 				int resultType=generateResultType((yyvsp[-2]), (yyvsp[0])); // oczekiwany typ wyniku
-				(yyval) = createAdditionalVariable(resultType);//zwraca id w TS
+				(yyval) = addTempVariable(resultType);//zwraca id w TS
 				writeToOutputByToken((yyvsp[-1]), (yyval), true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			}
 #line 1917 "parser.c" /* yacc.c:1646  */
@@ -1928,7 +1928,7 @@ yyreduce:
 							yyerror("Wywołanie funkcji przyjmującej parametry bez parametrów");
 							YYERROR;
 						}
-						funCalled = createAdditionalVariable(SymbolTable[funCalled].type);//nowa zmienna na wartość którą zwróci funkcja
+						funCalled = addTempVariable(SymbolTable[funCalled].type);//nowa zmienna na wartość którą zwróci funkcja
 						writeToOutput(string("\n\tpush.i #").c_str());writeIntToOutput(SymbolTable[funCalled].address);
 						writeToOutput(string("\n\tcall.i #").c_str());writeToOutput(SymbolTable[(yyvsp[0])].name.c_str());
 						//funkcja bez parametrów więc incsp = 4
@@ -1979,7 +1979,7 @@ yyreduce:
 							if(SymbolTable[argsVector[i]].token==NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
-								int numVar = createAdditionalVariable(argumentType);
+								int numVar = addTempVariable(argumentType);
 								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argsVector[i], true);
 								id = numVar;
 							}
@@ -1988,7 +1988,7 @@ yyreduce:
 							// typ argumentu funkcji i typ wartosci przekazywanej są różne (INT i REAL) - konwersja
 							if(argumentType!=passedType)
 							{
-								int tempVar = createAdditionalVariable(argumentType);
+								int tempVar = addTempVariable(argumentType);
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
@@ -2003,7 +2003,7 @@ yyreduce:
 							argsVector.pop_back();
 						}
 						// zmienna na wartość zwracaną
-						int id = createAdditionalVariable(SymbolTable[index].type);
+						int id = addTempVariable(SymbolTable[index].type);
 						writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
 						incspCount += 4;	// zwiększ rozmiar
 						(yyval) = id;
@@ -2045,7 +2045,7 @@ yyreduce:
 				//jeq jeżeli factor == 0 skacz do miejsca w którym ustawimy wartość na 1
 				writeToOutputByToken(_EQ,labelFactorEqualZero, true, (yyvsp[0]), true,  zeroId, true);
 				//jeżeli factor był inny niż 0 to zapisz 0 to zmiennej jak boło to samo to nie wykona bo przeskoczył
-				int varWithNotResult = createAdditionalVariable(INTEGER);
+				int varWithNotResult = addTempVariable(INTEGER);
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, zeroId, true);
 				//jump na koniec
 				int labelFinishNOT = createLabel();

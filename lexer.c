@@ -380,11 +380,11 @@ static yyconst flex_int16_t yy_accept[114] =
        24,   24,   24,   24,   24,   24,   24,   24,   25,    0,
        23,   20,   24,   24,   24,   24,   24,   14,   24,   24,
        24,   11,   24,   24,   24,   17,   10,   24,   24,   24,
-       24,   24,    0,   21,   24,   24,   24,    5,   24,   24,
-        9,   24,   24,   24,    6,   24,    0,   24,   24,   13,
-       24,   24,   24,   24,    8,   12,   24,    0,   16,    4,
+       24,   24,    0,   21,   24,   24,   24,    8,   24,   24,
+        9,   24,   24,   24,    5,   24,    0,   24,   24,   13,
+       24,   24,   24,   24,    4,   12,   24,    0,   16,    7,
        24,   24,   24,   24,   15,    0,   24,   24,   24,   24,
-        0,   24,    7,   24,    3,    0,   18,   24,    0,   19,
+        0,   24,    3,   24,    6,    0,   18,   24,    0,   19,
 
         0,    0,    0,    0,    0,    0,    0,    0,   26,    0,
         0,   26,    0
@@ -819,160 +819,160 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 35 "lexer.l"
-{return PROGRAM;}
+#line 36 "lexer.l"
+{yylval = INTEGER; return INTEGER;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 36 "lexer.l"
-{return BEGINN;}
+#line 37 "lexer.l"
+{yylval = REAL; return REAL;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 37 "lexer.l"
-{return END;}
+#line 39 "lexer.l"
+{return VAR;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 38 "lexer.l"
-{return VAR;}
+#line 40 "lexer.l"
+{return PROGRAM;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 39 "lexer.l"
-{yylval = INTEGER; return INTEGER;}
+#line 41 "lexer.l"
+{return BEGINN;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 40 "lexer.l"
-{yylval = REAL; return REAL;}
+#line 42 "lexer.l"
+{return END;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 41 "lexer.l"
+#line 43 "lexer.l"
 {return NOT;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 42 "lexer.l"
+#line 44 "lexer.l"
 {return OR;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 43 "lexer.l"
+#line 45 "lexer.l"
 {return IF;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 44 "lexer.l"
+#line 46 "lexer.l"
 {return THEN;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 45 "lexer.l"
+#line 47 "lexer.l"
 {return ELSE;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 46 "lexer.l"
+#line 48 "lexer.l"
 {return DO;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 47 "lexer.l"
+#line 49 "lexer.l"
 {return WHILE;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 49 "lexer.l"
+#line 51 "lexer.l"
 {return ARRAY;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 50 "lexer.l"
+#line 52 "lexer.l"
 {return OF;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 51 "lexer.l"
+#line 53 "lexer.l"
 {return FUN;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 52 "lexer.l"
+#line 54 "lexer.l"
 {return PROC;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 54 "lexer.l"
+#line 56 "lexer.l"
 {yylval = getToken(yytext); return RELOP;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 55 "lexer.l"
+#line 57 "lexer.l"
 {yylval = getToken(yytext); return MULOP;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 56 "lexer.l"
+#line 58 "lexer.l"
 {yylval = getToken(yytext); return SIGN;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 57 "lexer.l"
+#line 59 "lexer.l"
 {return ASSIGN;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 59 "lexer.l"
+#line 61 "lexer.l"
 {
-							int p = lookupIfExist(yytext);
-							if (p == -1)
-							{
-								p = insert(yytext, ID, NONE);
-							}
-							yylval = p;
-							return ID;
-						}
+											int value = lookupIfExist(yytext);
+											if (value == -1)
+											{
+												value = insert(yytext, ID, NONE);
+											}
+											yylval = value;
+											return ID;
+										}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 68 "lexer.l"
+#line 70 "lexer.l"
 {
-							int p = lookupIfExist(yytext);
-							if (p == -1)
-							{
-								p = insert(yytext, NUM, INTEGER);
-							}
-							yylval = p;
-							return NUM;
-						}
+											int value = lookupIfExist(yytext);
+											if (value == -1)
+											{
+												value = insert(yytext, NUM, INTEGER);
+											}
+											yylval = value;
+											return NUM;
+										}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 77 "lexer.l"
+#line 79 "lexer.l"
 {
-							int p = lookupIfExist(yytext);
-							if (p == -1)
-							{
-								p = insert(yytext, NUM, REAL);
-							}
-							yylval = p;
-							return NUM;
-						}
+											int value = lookupIfExist(yytext);
+											if (value == -1)
+											{
+												value = insert(yytext, NUM, REAL);
+											}
+											yylval = value;
+											return NUM;
+										}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 86 "lexer.l"
+#line 88 "lexer.l"
 {return DONE;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 87 "lexer.l"
+#line 89 "lexer.l"
 {return *yytext;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 89 "lexer.l"
+#line 91 "lexer.l"
 ECHO;
 	YY_BREAK
 #line 979 "lexer.c"
@@ -1974,7 +1974,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 89 "lexer.l"
+#line 91 "lexer.l"
 
 
 
