@@ -53,8 +53,8 @@
 %token 	DONE
 
 
-%%
 
+%%
 
 program:
 		PROGRAM ID '(' start_identifiers ')' ';' declarations subprogram_declarations
@@ -64,7 +64,8 @@ program:
 		compound_statement
 		'.'
 			{
-				writeToOutput("\n\texit\n");
+				writeToOutput("\n");
+				writeToOutputExt("","exit","",";exit ","\n");
 				writeToFile();
 			}
 		eof
@@ -78,22 +79,13 @@ start_identifiers:
 identifier_list:
 		ID
 			{
-				int ii = $1;
-				if(ii == -1)
-				//-1 bo parser,WRZUĆ DO argsVector ID ustawił jak już było w ST
-				{
-					YYERROR;
-				}
-				argsVector.push_back(ii);
+				checkSymbolExist($1);
+				argsVector.push_back($1);
 			}
 	| identifier_list ',' ID
 			{
-				int ii = $3;
-				if(ii == -1)
-				{
-					YYERROR;
-				}
-				argsVector.push_back(ii);
+				checkSymbolExist($3);
+				argsVector.push_back($3);
 			}
 	;
 

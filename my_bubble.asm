@@ -113,4 +113,4 @@ lab0:
         push.i #12
         call.i  #wypisztab
         incsp.i #4                      ;incsp.i 
-	exit
+        exit                            ;exit    

@@ -469,13 +469,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    61,    61,    66,    60,    74,    75,    79,    89,   101,
-     128,   132,   133,   148,   149,   153,   154,   158,   173,   185,
-     190,   172,   198,   210,   197,   218,   229,   233,   260,   286,
-     290,   291,   295,   296,   300,   304,   305,   307,   315,   306,
-     326,   335,   325,   347,   356,   396,   417,   524,   528,   535,
-     539,   564,   565,   580,   586,   595,   596,   605,   629,   710,
-     711,   715,   740
+       0,    61,    61,    66,    60,    75,    76,    80,    85,    93,
+     120,   124,   125,   140,   141,   145,   146,   150,   165,   177,
+     182,   164,   190,   202,   189,   210,   221,   225,   252,   278,
+     282,   283,   287,   288,   292,   296,   297,   299,   307,   298,
+     318,   327,   317,   339,   348,   388,   409,   516,   520,   527,
+     531,   556,   557,   572,   578,   587,   588,   597,   621,   702,
+     703,   707,   732
 };
 #endif
 
@@ -1340,41 +1340,33 @@ yyreduce:
   case 3:
 #line 66 "parser.y" /* yacc.c:1646  */
     {
-				writeToOutput("\n\texit\n");
+				writeToOutput("\n");
+				writeToOutputExt("","exit","",";exit ","\n");
 				writeToFile();
 			}
-#line 1347 "parser.c" /* yacc.c:1646  */
+#line 1348 "parser.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 80 "parser.y" /* yacc.c:1646  */
+#line 81 "parser.y" /* yacc.c:1646  */
     {
-				int ii = (yyvsp[0]);
-				if(ii == -1)
-				//-1 bo parser,WRZUĆ DO argsVector ID ustawił jak już było w ST
-				{
-					YYERROR;
-				}
-				argsVector.push_back(ii);
+				checkSymbolExist((yyvsp[0]));
+				argsVector.push_back((yyvsp[0]));
 			}
-#line 1361 "parser.c" /* yacc.c:1646  */
+#line 1357 "parser.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 90 "parser.y" /* yacc.c:1646  */
+#line 86 "parser.y" /* yacc.c:1646  */
     {
-				int ii = (yyvsp[0]);
-				if(ii == -1)
-				{
-					YYERROR;
-				}
-				argsVector.push_back(ii);
+				checkSymbolExist((yyvsp[0]));
+				argsVector.push_back((yyvsp[0]));
 			}
-#line 1374 "parser.c" /* yacc.c:1646  */
+#line 1366 "parser.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 102 "parser.y" /* yacc.c:1646  */
+#line 94 "parser.y" /* yacc.c:1646  */
     {
 			//ustawiamy typ i obliczamy offset(adres)
 			for(auto &element : argsVector)
@@ -1399,11 +1391,11 @@ yyreduce:
 			}
 			argsVector.clear(); // wyczyść listę indeksów napotkanych ID
 		}
-#line 1403 "parser.c" /* yacc.c:1646  */
+#line 1395 "parser.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 134 "parser.y" /* yacc.c:1646  */
+#line 126 "parser.y" /* yacc.c:1646  */
     {
 				(yyval) = ARRAY;
 				helpVarArray = (yyvsp[0]);
@@ -1413,11 +1405,11 @@ yyreduce:
 				array_range.startVal = atoi(SymbolTable[(yyvsp[-6])].name.c_str());
 				array_range.stopVal = atoi(SymbolTable[(yyvsp[-3])].name.c_str());
 			}
-#line 1417 "parser.c" /* yacc.c:1646  */
+#line 1409 "parser.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 159 "parser.y" /* yacc.c:1646  */
+#line 151 "parser.y" /* yacc.c:1646  */
     {
 				//koniec proc/func
 				writeToOutput("\n\tleave");
@@ -1427,11 +1419,11 @@ yyreduce:
 				isGlobal = true;			//bo już po funkcji..
 				funcProcParmOffset = 8; 	//resetuje
 			}
-#line 1431 "parser.c" /* yacc.c:1646  */
+#line 1423 "parser.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 173 "parser.y" /* yacc.c:1646  */
+#line 165 "parser.y" /* yacc.c:1646  */
     {	//WYPISZ LABEL FUNKCJI OFFSET NA 12, ZMIANA NA LOCAL
 				int ii = (yyvsp[0]);
 				if((yyvsp[0]) == -1)
@@ -1443,31 +1435,31 @@ yyreduce:
 				writeToOutputByToken(FUN, ii ,true ,-1 ,true ,-1 ,true);//wypisuje label funkcji
 				funcProcParmOffset = 12; //wartość zwracana pod +8 pod +12 parms
 			}
-#line 1447 "parser.c" /* yacc.c:1646  */
+#line 1439 "parser.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 185 "parser.y" /* yacc.c:1646  */
+#line 177 "parser.y" /* yacc.c:1646  */
     {	//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
 				SymbolTable[(yyvsp[-2])].parameters = parameters; //info o argumentach
 				parameters.clear();
 			}
-#line 1456 "parser.c" /* yacc.c:1646  */
+#line 1448 "parser.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 190 "parser.y" /* yacc.c:1646  */
+#line 182 "parser.y" /* yacc.c:1646  */
     {	//ZRÓB MIEJSCE NA WARTOŚĆ ZWRACANĄ
 				SymbolTable[(yyvsp[-5])].type = (yyvsp[0]);//return type
 				int returnVarible = insert(SymbolTable[(yyvsp[-5])].name.c_str() ,VAR ,(yyvsp[0])); 	//zmienna na wartosc zwracana
 				SymbolTable[returnVarible].isReference = true;				  			// referencja
 				SymbolTable[returnVarible].address = 8;									// wartość zwracana pod offsetem +8
 			}
-#line 1467 "parser.c" /* yacc.c:1646  */
+#line 1459 "parser.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 198 "parser.y" /* yacc.c:1646  */
+#line 190 "parser.y" /* yacc.c:1646  */
     { 	//OFFSET NA 8 ZMIANA NA LOCAL
 				int ii = (yyvsp[0]);
 				if(ii == -1)
@@ -1479,20 +1471,20 @@ yyreduce:
 				writeToOutputByToken(PROC ,ii ,true ,-1 ,true ,-1 ,true);	// wygeneruj początek procedury
 				funcProcParmOffset = 8;				 				// pierwszy (jeśli wystąpi) parametr będzie pod offsetem +8
 			}
-#line 1483 "parser.c" /* yacc.c:1646  */
+#line 1475 "parser.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 210 "parser.y" /* yacc.c:1646  */
+#line 202 "parser.y" /* yacc.c:1646  */
     {	//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
 				SymbolTable[(yyvsp[-2])].parameters = parameters;
 				parameters.clear();
 			}
-#line 1492 "parser.c" /* yacc.c:1646  */
+#line 1484 "parser.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 219 "parser.y" /* yacc.c:1646  */
+#line 211 "parser.y" /* yacc.c:1646  */
     { //USTAW OFFSETY DLA PARAMETRÓW +4...
 				//lista parametrów w funkcji nadaj im kolejne offsety
 				//iteruj po każdym parametrze
@@ -1503,11 +1495,11 @@ yyreduce:
 				}
 				funParams.clear(); // wyczyść listę przechowujacą parametry
 			}
-#line 1507 "parser.c" /* yacc.c:1646  */
+#line 1499 "parser.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 234 "parser.y" /* yacc.c:1646  */
+#line 226 "parser.y" /* yacc.c:1646  */
     {	//WRZUCA Z argsVector DO PARAMETERS(ABY PRZEKAZAĆ DO ST DO TEGO ID) I FUNpARMS(DO LICZENIA OFFSETÓW)
 				int refType = (yyvsp[0]);
 				//przelatuje przez każdy argument funkcji
@@ -1534,11 +1526,11 @@ yyreduce:
 				}
 				argsVector.clear();
 			}
-#line 1538 "parser.c" /* yacc.c:1646  */
+#line 1530 "parser.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 261 "parser.y" /* yacc.c:1646  */
+#line 253 "parser.y" /* yacc.c:1646  */
     {
 				//to co wyżej
 				int refType = (yyvsp[0]);
@@ -1561,19 +1553,19 @@ yyreduce:
 				}
 				argsVector.clear();
 			}
-#line 1565 "parser.c" /* yacc.c:1646  */
+#line 1557 "parser.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 301 "parser.y" /* yacc.c:1646  */
+#line 293 "parser.y" /* yacc.c:1646  */
     {
 				writeToOutputByToken(ASSIGN,(yyvsp[-2]),true,-1, true,(yyvsp[0]),true);
 			}
-#line 1573 "parser.c" /* yacc.c:1646  */
+#line 1565 "parser.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 307 "parser.y" /* yacc.c:1646  */
+#line 299 "parser.y" /* yacc.c:1646  */
     {	//ZRÓB LABEL $2 SPRAWDŹ CZY expression == 0 JAK NIE SKACZ
 				int firstLabel = addLabel();//tworzymy label dla jumpa
 				int newNumInST = insertNum("0",INTEGER);
@@ -1581,30 +1573,30 @@ yyreduce:
 				writeToOutputByToken(_EQ, firstLabel, true, (yyvsp[0]), true, newNumInST, true);
 				(yyvsp[0]) = firstLabel;
 			}
-#line 1585 "parser.c" /* yacc.c:1646  */
+#line 1577 "parser.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 315 "parser.y" /* yacc.c:1646  */
+#line 307 "parser.y" /* yacc.c:1646  */
     {	//RÓB LABEL2 $5 RÓB JUMPA DO $5, RÓB LABEL $2
 				int secondLabel = addLabel();
 				(yyvsp[0]) = secondLabel;
 				writeToOutputByToken(_JUMP, secondLabel, true, -1, true, -1, true);
 				writeToOutputByToken(_LABEL, (yyvsp[-3]), true, -1, true, -1, true);
 			}
-#line 1596 "parser.c" /* yacc.c:1646  */
+#line 1588 "parser.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 322 "parser.y" /* yacc.c:1646  */
+#line 314 "parser.y" /* yacc.c:1646  */
     {	//RÓB LABEL $5
 				writeToOutputByToken(_LABEL, (yyvsp[-3]), true, -1, true, -1, true);
 			}
-#line 1604 "parser.c" /* yacc.c:1646  */
+#line 1596 "parser.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 326 "parser.y" /* yacc.c:1646  */
+#line 318 "parser.y" /* yacc.c:1646  */
     {	//RÓB START $1 I STOP SS->$2 LABEL, WYPISZ STARTLABEL
 				int stopLabel = addLabel();
 				int startLabel = addLabel();
@@ -1613,29 +1605,29 @@ yyreduce:
 				(yyval) = stopLabel;
 				writeToOutputByToken(_LABEL, startLabel, true, -1, true, -1, true);
 			}
-#line 1617 "parser.c" /* yacc.c:1646  */
+#line 1609 "parser.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 335 "parser.y" /* yacc.c:1646  */
+#line 327 "parser.y" /* yacc.c:1646  */
     {	//JAK WARUNEK NIE SPEŁNIONY UCIEKAJ DO STOP
 				int v = insertNum("0",INTEGER);
 				writeToOutputByToken(_EQ, (yyvsp[-2]), true, (yyvsp[-1]), true, v, true);
 			}
-#line 1626 "parser.c" /* yacc.c:1646  */
+#line 1618 "parser.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 340 "parser.y" /* yacc.c:1646  */
+#line 332 "parser.y" /* yacc.c:1646  */
     {	//RÓB JUMP DO START I LABEL STOPU
 				writeToOutputByToken(_JUMP, (yyvsp[-5]), true, -1, true, -1, true);
 				writeToOutputByToken(_LABEL, (yyvsp[-4]), true, -1, true, -1, true);
 			}
-#line 1635 "parser.c" /* yacc.c:1646  */
+#line 1627 "parser.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 348 "parser.y" /* yacc.c:1646  */
+#line 340 "parser.y" /* yacc.c:1646  */
     {	//ZWRÓĆ ID
 				int z = (yyvsp[0]);
 				if(z == -1) {
@@ -1644,11 +1636,11 @@ yyreduce:
 				}
 				(yyval) = z;
 			}
-#line 1648 "parser.c" /* yacc.c:1646  */
+#line 1640 "parser.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 357 "parser.y" /* yacc.c:1646  */
+#line 349 "parser.y" /* yacc.c:1646  */
     {	//JAK SIMPLE_EXP REAL TO ZMIEŃ NA INT, ODEJMIJ OD INDEKSU INDEX STARTOWY(WYPISZ MINUS)
 				//MNOŻENIE INDEKSU RAZY TYP OCZLICZENIE ADRESU ELEMENTU W NOWEJ ZMIENNEJ, ZMIANA NA REF
 				//jak real zmien na int
@@ -1685,11 +1677,11 @@ yyreduce:
 				SymbolTable[varWithAddresOfArrayElement].type = SymbolTable[arrayId].type;
 				(yyval) = varWithAddresOfArrayElement;
 			}
-#line 1689 "parser.c" /* yacc.c:1646  */
+#line 1681 "parser.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 397 "parser.y" /* yacc.c:1646  */
+#line 389 "parser.y" /* yacc.c:1646  */
     {	// wywołanie func/proc np aaa;WYWOŁANIE BEZ PARAMETRÓW GENERUJ CALL #SSS
 				int procF = (yyvsp[0]);
 				if(procF==-1){
@@ -1710,11 +1702,11 @@ yyreduce:
 					YYERROR;
 				}
 			}
-#line 1714 "parser.c" /* yacc.c:1646  */
+#line 1706 "parser.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 418 "parser.y" /* yacc.c:1646  */
+#line 410 "parser.y" /* yacc.c:1646  */
     {	//JAK READ WRITE WYPISZ ..
 				//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
 				//USUŃ Z argsVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA GENERUJ CALL I INCSP
@@ -1818,35 +1810,35 @@ yyreduce:
 				}
 				argsVector.clear();
 			}
-#line 1822 "parser.c" /* yacc.c:1646  */
+#line 1814 "parser.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 525 "parser.y" /* yacc.c:1646  */
+#line 517 "parser.y" /* yacc.c:1646  */
+    {
+				argsVector.push_back((yyvsp[0]));
+			}
+#line 1822 "parser.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 521 "parser.y" /* yacc.c:1646  */
     {
 				argsVector.push_back((yyvsp[0]));
 			}
 #line 1830 "parser.c" /* yacc.c:1646  */
     break;
 
-  case 48:
-#line 529 "parser.y" /* yacc.c:1646  */
+  case 49:
+#line 528 "parser.y" /* yacc.c:1646  */
     {
-				argsVector.push_back((yyvsp[0]));
+				(yyval) = (yyvsp[0]);
 			}
 #line 1838 "parser.c" /* yacc.c:1646  */
     break;
 
-  case 49:
-#line 536 "parser.y" /* yacc.c:1646  */
-    {
-				(yyval) = (yyvsp[0]);
-			}
-#line 1846 "parser.c" /* yacc.c:1646  */
-    break;
-
   case 50:
-#line 540 "parser.y" /* yacc.c:1646  */
+#line 532 "parser.y" /* yacc.c:1646  */
     {	//GENERUJE LABELE I SKACZE W ZALEŻNOŚCI CZY SPEŁNIONY WARUNEK ZWRACA RESULTVAR
 			int newLabelPass = addLabel();
 			int relopType = (yyvsp[-1]);
@@ -1868,11 +1860,11 @@ yyreduce:
 			writeToOutputByToken(_LABEL, newLabelFinish, true, -1, true, -1, true);
 			(yyval) = resultVar;
 		}
-#line 1872 "parser.c" /* yacc.c:1646  */
+#line 1864 "parser.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 566 "parser.y" /* yacc.c:1646  */
+#line 558 "parser.y" /* yacc.c:1646  */
     {	//DLA PLUSA ZWRÓĆ TERM DLA MINUSA ODEJMIJ OD ZERA I ZWRÓĆ
 				if((yyvsp[-1]) == _PLUS)
 				{
@@ -1887,41 +1879,41 @@ yyreduce:
 					writeToOutputByToken((yyvsp[-1]), (yyval), true, tempVar, true, (yyvsp[0]), true);
 				}
 			}
-#line 1891 "parser.c" /* yacc.c:1646  */
+#line 1883 "parser.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 581 "parser.y" /* yacc.c:1646  */
+#line 573 "parser.y" /* yacc.c:1646  */
     {	//GENERUJE OPERACJE + LUB - ZWRACA WYNIK
 				int resultType=getResultType((yyvsp[-2]), (yyvsp[0]));
 				(yyval) = addTempSymbol(resultType);
 				writeToOutputByToken((yyvsp[-1]), (yyval), true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			}
-#line 1901 "parser.c" /* yacc.c:1646  */
+#line 1893 "parser.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 587 "parser.y" /* yacc.c:1646  */
+#line 579 "parser.y" /* yacc.c:1646  */
     {	//GENERUJE OR ZWRACA WYNIK
 				int tempVar = addTempSymbol(INTEGER);
 				writeToOutputByToken(OR, tempVar, true, (yyvsp[-2]), true, (yyvsp[0]), true);
 				(yyval) = tempVar;
 			}
-#line 1911 "parser.c" /* yacc.c:1646  */
+#line 1903 "parser.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 597 "parser.y" /* yacc.c:1646  */
+#line 589 "parser.y" /* yacc.c:1646  */
     {	//ZWRACA WYNIK I ROBI OPERACJE DLA * MOD AND DIV
 				int resultType=getResultType((yyvsp[-2]), (yyvsp[0])); // oczekiwany typ wyniku
 				(yyval) = addTempSymbol(resultType);//zwraca id w TS
 				writeToOutputByToken((yyvsp[-1]), (yyval), true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			}
-#line 1921 "parser.c" /* yacc.c:1646  */
+#line 1913 "parser.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 606 "parser.y" /* yacc.c:1646  */
+#line 598 "parser.y" /* yacc.c:1646  */
     {	//PROC NIE MOŻE BO NIE ZWRACA WYNIKU, WIĘC WYWOŁANIE FUNKCJI BEZ PARM  LUB ZMIENNA
 				//JAK FUN GENERUJ PUSH CALL I INCSP JAK ZMIENNA ZWRÓĆ VARIABLE JAK FUN ADRES ZWROTNY
 					int funCalled = (yyvsp[0]);
@@ -1945,11 +1937,11 @@ yyreduce:
 					}
 					(yyval) = funCalled;
 				}
-#line 1949 "parser.c" /* yacc.c:1646  */
+#line 1941 "parser.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 630 "parser.y" /* yacc.c:1646  */
+#line 622 "parser.y" /* yacc.c:1646  */
     { 	//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
 					//USUŃ Z argsVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA
 					//GENERUJ CALL I INCSP
@@ -2030,19 +2022,19 @@ yyreduce:
 						YYERROR;
 					}
 				}
-#line 2034 "parser.c" /* yacc.c:1646  */
+#line 2026 "parser.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 712 "parser.y" /* yacc.c:1646  */
+#line 704 "parser.y" /* yacc.c:1646  */
     {
 				(yyval) = (yyvsp[-1]);
 			}
-#line 2042 "parser.c" /* yacc.c:1646  */
+#line 2034 "parser.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 716 "parser.y" /* yacc.c:1646  */
+#line 708 "parser.y" /* yacc.c:1646  */
     {	//RÓB LABELE JAK 0 TO SKACZ JAK NIE TO TEŻ SKACZ ...
 				int labelFactorEqualZero = addLabel();
 				int zeroId = insertNum("0",INTEGER);
@@ -2064,19 +2056,19 @@ yyreduce:
 				writeToOutputByToken(_LABEL, labelFinishNOT, true, -1, true, -1, true);
 				(yyval) = varWithNotResult;
 			}
-#line 2068 "parser.c" /* yacc.c:1646  */
+#line 2060 "parser.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 741 "parser.y" /* yacc.c:1646  */
+#line 733 "parser.y" /* yacc.c:1646  */
     {
 				return 0;
 			}
-#line 2076 "parser.c" /* yacc.c:1646  */
+#line 2068 "parser.c" /* yacc.c:1646  */
     break;
 
 
-#line 2080 "parser.c" /* yacc.c:1646  */
+#line 2072 "parser.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2304,7 +2296,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 747 "parser.y" /* yacc.c:1906  */
+#line 739 "parser.y" /* yacc.c:1906  */
 
 
 

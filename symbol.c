@@ -16,18 +16,16 @@ void checkSymbolExist(int id){
 
 // alokuje nową zmienną tymczasową typu type
 int addTempSymbol(int type) {
-	stringstream ss;
-	ss << "$t" << variablesCount++;
-	int id = insert(ss.str().c_str(), VAR, type);
+	string ss = "$t" + to_string(variablesCount++);
+	int id = insert(ss.c_str(), VAR, type);
 	//wygeneruj pozycję gdzie bedzie ta nowa zmienna
-	SymbolTable[id].address = getSymbolPosition(ss.str().c_str());
+	SymbolTable[id].address = getSymbolPosition(ss.c_str());
 	return id;
 }
 
 int addLabel() {
-	stringstream ss;
-	ss << "lab" << labelsCount++;
-	int id = insert(ss.str().c_str(), _LABEL, NONE);
+	string ss = "lab" + to_string(labelsCount++);
+	int id = insert(ss.c_str(), _LABEL, NONE);
 	return id;
 }
 
@@ -86,19 +84,23 @@ int getSymbolSize(Symbol e) {
 		} else if (e.type == REAL) {
 			return realSizeElement;
 		}
-	} else if (e.token == ARRAY) {
-		int elemSize = intArraySizeElement;
+	} 
+	else if (e.token == ARRAY) {
 		if (e.type == REAL) {
-			elemSize = realArraySizeElement;
+			return (e.array.stopVal - e.array.startVal + 1) * realArraySizeElement;
 		}
-		return (e.array.stopVal - e.array.startVal + 1) * elemSize;
-	} else if (e.isReference)
+		else{
+			return (e.array.stopVal - e.array.startVal + 1) * intArraySizeElement;
+		}
+	} 
+	else if (e.isReference){
 		return referenceSizeElement;
+	}
 	return nothingSizeElement;
 }
 
-string getDescription(int tokenID) {
-	switch (tokenID) {
+string getDescription(int tokenId) {
+	switch (tokenId) {
 		case PROC:
 			return "procedure";
 		case FUN:
@@ -136,10 +138,9 @@ void clearLocalSymbols() {
 
 //wstawia wpis do ST
 int insert(const char *s, int token, int type) {
-	Symbol e;
-
-	e.token = token;        // typ tokenu (VAR, NUM, ARRAY, FUN, PROC)
 	string name = s;
+	Symbol e;
+	e.token = token;        // typ tokenu (VAR, NUM, ARRAY, FUN, PROC)
 	e.name = name;            //nazwa
 	e.type = type;
 	e.isGlobal = isGlobal; // zakres
@@ -160,7 +161,8 @@ int insertNum(const char *numVal, int numType) {
 }
 
 int lookup(const char *s) {
-	for (int p = SymbolTable.size() - 1; p >= 0; p--) {
+	int p = SymbolTable.size() - 1;
+	for (p; p >= 0; p--) {
 		if (SymbolTable[p].name == s) {
 			return p;
 		}
@@ -191,17 +193,20 @@ int lookupIfExist(const char *s) {
 			}
 		}
 	}
-	for (p; p >= 0; p--) {//czy jest w części globalnej
-		if (SymbolTable[p].name == s) {//znaleziono
-			return p;
+	else{
+		for (p; p >= 0; p--) {//czy jest w części globalnej
+			if (SymbolTable[p].name == s) {//znaleziono
+				return p;
+			}
 		}
 	}
 	return -1;
 }
 
 int lookupForFunction(const char *s) {
-	for (int p = SymbolTable.size() - 1; p >= 0; p--) {
-		if ((SymbolTable[p].token == FUN || SymbolTable[p].token == PROC) && SymbolTable[p].name == s) {
+	int p = SymbolTable.size() - 1;
+	for (p; p >= 0; p--) {
+		if (SymbolTable[p].name == s && (SymbolTable[p].token == FUN || SymbolTable[p].token == PROC)) {
 			return p;
 		}
 	}
@@ -215,13 +220,13 @@ void printSymbolTable() {
 	int i = 0;
 
 	for (auto &e : SymbolTable) {
-		if(e.token != ID)
-		{
+		if(e.token != ID){
 			cout << "; " << i++;
 
 			if (e.isGlobal) {
 				cout << " Global ";
-			} else {
+			} 
+			else {
 				cout << " Local ";
 			}
 
