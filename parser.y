@@ -2,6 +2,8 @@
 	#include "global.h"
 	using namespace std;
 
+	int arrayTypeHelpery;
+	//lista na parametry funkcji
 	//lista zmiennych którym później będzie przydzielony typ podczas deklaracji
 	// | lista argumentów funkcji write, ride
 	vector<int> argsVector;
@@ -9,7 +11,7 @@
 	void yyerror(char const* s);
 
 	//zakres tablicy ma start i stop
-	arrayRange array_range;
+	ArrayInfo array_range;
 
 	//zmienna pomocnicza dla array do przekazania typu po deklaracji
 	int helpVarArray;
@@ -18,7 +20,7 @@
 	int funcProcParmOffset=8;
 
 	//lista na parametry funkcji
-	list<pair<int, arrayRange> > parameters;
+	list<pair<int, ArrayInfo> > parameters;
 
 	//LISTA DO OBLICZANIA INCSP
 	list<int> funParams;
@@ -454,7 +456,7 @@ procedure_statement:
 						// zmienna na rozmiar wrzuconych na stos referencji
 						int incspCount = 0;
 						//iterator po argumentach
-						list<pair<int,arrayRange> >::iterator it=SymbolTable[index].parameters.begin();
+						list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
 						int startPoint = argsVector.size() - SymbolTable[index].parameters.size();
 						// przejdź po argumentach
 						for(int i = startPoint; i < argsVector.size(); i++)
@@ -645,7 +647,7 @@ factor:
 					// zmienna na rozmiar wrzuconych na stos referencji
 					int incspCount = 0;
 					//iterator po argumentach
-					list<pair<int,arrayRange> >::iterator it=SymbolTable[index].parameters.begin();
+					list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
 					int startPoint = argsVector.size() - SymbolTable[index].parameters.size();
 					// przejdź po argumentach
 					for(int i=startPoint;i<argsVector.size();i++)

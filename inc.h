@@ -9,7 +9,7 @@
 using namespace std;
 
 // dane tablic
-class arrayRange{
+class ArrayInfo{
 public:
 	int start;//id w tablicy symboli
 	int stop;
@@ -27,8 +27,8 @@ public:
 	int address;	 //adres (offset który został przydzielony)
 	int returnType;		// typ zwracany (funkcja)// funkcja
 	string name;	 //nazwa lub numer (dla liczb)
-	arrayRange array;	 // dane tablicy// dla tablic
-	list<pair<int,arrayRange> > parameters; // typy kolejnych parametrów (funkcja/procedura)
+	ArrayInfo array;	 // dane tablicy// dla tablic
+	list<pair<int,ArrayInfo> > parameters; // typy kolejnych parametrów (funkcja/procedura)
 };
 
 

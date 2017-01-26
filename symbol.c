@@ -7,6 +7,13 @@ vector <Symbol> SymbolTable;
 int variablesCount = 0;
 int labelsCount = 1;
 
+
+void checkSymbolExist(int id){
+    if(id == -1) {
+		yyerror("Niezadeklarowana zmienna.");
+    }
+}
+
 // alokuje nową zmienną tymczasową typu type
 int addTempSymbol(int type) {
 	stringstream ss;
@@ -22,6 +29,19 @@ int addLabel() {
 	ss << "lab" << labelsCount++;
 	int id = insert(ss.str().c_str(), _LABEL, NONE);
 	return id;
+}
+
+void addVariable(int index, int type){
+    SymbolTable[index].token = VAR;
+	SymbolTable[index].type = type;
+	SymbolTable[index].address = getSymbolPosition(SymbolTable[index].name);
+}
+
+void addArray(int index, int type,int helpVarArray,ArrayInfo array_range){
+    SymbolTable[index].type = helpVarArray;
+	SymbolTable[index].token = type;
+	SymbolTable[index].array = array_range; // struktura zawierająca indeks początkowy i końcowy array
+	SymbolTable[index].address = getSymbolPosition(SymbolTable[index].name);
 }
 
 //generuje pozycję dla nowej zmiennej (rozmiar zaalokowanych zmiennych)

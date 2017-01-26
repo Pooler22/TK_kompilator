@@ -1,10 +1,10 @@
 #include "global.h"
 #include "parser.h"
+#include "SymbolTableHelper.h"
 
 using namespace std;
 
 ofstream stream;
-
 bool isGlobal = true;
 
 int main(int argc, char *argv[]) {
@@ -37,6 +37,9 @@ int main(int argc, char *argv[]) {
 		printf("Error: Cannot open output file");
 		return -1;
 	}
+	
+	SymbolTableHelper test = SymbolTableHelper();
+	//test.test();
 
 	Symbol read;
 	read.name = string("read");
@@ -59,7 +62,7 @@ int main(int argc, char *argv[]) {
 	lab0.token = _LABEL;
 	SymbolTable.push_back(lab0);
 
-	streamString << "\t\t\t" << "jump.i  #" << lab0.name;
+	streamString << "        " << "jump.i  #" << lab0.name << "                   ;jump.i  lab0";
 	stream.write(streamString.str().c_str(), streamString.str().size());
 
 	yyparse();
