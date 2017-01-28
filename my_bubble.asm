@@ -13,7 +13,7 @@ lab4:
         sub.i BP-4,#1,BP-12
         mul.i    BP-12,#4,BP-12
         add.i BP+8,BP-12,BP-16
-        read.i *BP-16
+        read .i *BP-16
         add.i BP-4,#1,BP-20
         mov.i   BP-20,BP-4
         jump.i  #lab2                   ;jump.i  lab2
@@ -96,7 +96,7 @@ lab20:
         sub.i BP-4,#1,BP-12
         mul.i    BP-12,#4,BP-12
         add.i BP+8,BP-12,BP-16
-        write.i *BP-16
+        write .i *BP-16
         add.i BP-4,#1,BP-20
         mov.i   BP-20,BP-4
         jump.i  #lab18                   ;jump.i  lab18

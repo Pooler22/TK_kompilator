@@ -123,23 +123,22 @@ void writeVariable(int index, bool isValue) {
 
 //generuje kod dla prawie wszystkiego
 void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int leftVar, bool isValueLeft, int rightVar, bool isValueRight) {
-    string operationType;
+	string operationType;
 
 	if (resultVar != -1) {
 		if (SymbolTable[resultVar].type == REAL) {
 			operationType = ".r ";
 		}
 		else{
-            operationType = ".i ";
-        }
+			operationType = ".i ";
+		}
 	}
 
 	if (operand == _RETURN) {
 		ss << "\n        return                          ;return  ";
 		string res;
-		//zawartość srtingstreama do stringa
 		res = ss.str();
-		ss.str(string());//czyszczenie bo jest w res
+		ss.str(string());//clear
 		size_t pos = res.find("??");
 		ss << "#" << -1 * getSymbolAddress(string(""));
 		res.replace(pos, 2, ss.str());
@@ -149,8 +148,9 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 	else if (operand >= _EQ && operand <= _L) {
 		castToSameType(leftVar, isValueLeft, rightVar, isValueRight);
 		operationType = ".i ";
-		if (SymbolTable[leftVar].type == REAL)
+		if (SymbolTable[leftVar].type == REAL){
 			operationType = ".r ";
+		}
 		ss << "\n        ";
 		if (operand == _EQ) ss << "je";
 		else if (operand == _NE) ss << "jne";
@@ -159,7 +159,6 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		else if (operand == _G) ss << "jg";
 		else if (operand == _L) ss << "jl";
 		ss << operationType << "   ";
-
 		writeVariable(leftVar, isValueLeft);
 		ss << ",";
 		writeVariable(rightVar, isValueRight);
@@ -189,11 +188,11 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		ss << "\n        call.i  #" << SymbolTable[resultVar].name;
 	} 
 	else if (operand == _READ) {
-		ss << "\n        read" << operationType;
+		ss << "\n        read " << operationType;
 		writeVariable(resultVar, isValueResult);
 	} 
 	else if (operand == _WRITE) {
-		ss << "\n        write" << operationType;
+		ss << "\n        write " << operationType;
 		writeVariable(resultVar, isValueResult);
 	} 
 	else if (operand == _REALTOINT) {
@@ -248,7 +247,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
         {
             ss << "or";
         }
-		ss <<operationType << "   ";
+		ss << operationType << "   ";
 		writeVariable(leftVar, isValueLeft);
 		ss << ",";
 		writeVariable(rightVar, isValueRight);
@@ -269,7 +268,7 @@ void writeToOutput(const char *str) {
 }
 
 void writeStrToOutput(string str) {
-	ss << str;
+	ss << "\n" << str;
 }
 
 void writeIntToOutput(int i) {

@@ -40,7 +40,6 @@
 %token 	NONE
 %token 	DONE
 
-
 %%
 
 program:
@@ -144,42 +143,38 @@ subprogram_declaration:
 subprogram_head:
 		FUN ID
 			{	
-				//WYPISZ LABEL FUNKCJI OFFSET NA 12, ZMIANA NA LOCAL
+				const int functionOffset = 12;
 				checkSymbolExist($2);
 				SymbolTable[$2].token = FUN;
 				isGlobal = false;
-				funcProcParmOffset = 12; //wartość zwracana pod +8 pod +12 parms
-				writeToOutputByToken(FUN, $2 ,true ,-1 ,true ,-1 ,true);//wypisuje label funkcji
+				funcProcParmOffset = functionOffset;
+				writeToOutputByToken(FUN, $2 ,true ,-1 ,true ,-1 ,true);
 			}
 		arguments
 			{	
-				//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
-				SymbolTable[$2].parameters = parameters; //info o argumentach
+				SymbolTable[$2].parameters = parameters;
 				parameters.clear();
 			}
 		':' standard_type
 			{	
-				//ZRÓB MIEJSCE NA WARTOŚĆ ZWRACANĄ
-/* 				writeStrToOutput(("WOW\n"+to_string($7)+"WOW\n")); */
+				const int functionReturnOffset = 12;
 				SymbolTable[$2].type = $7;	//return type ????????????????
 				int returnVarible = insert(SymbolTable[$2].name.c_str() ,VAR ,$7); 	
-				//zmienna na wartosc zwracana
-				SymbolTable[returnVarible].isReference = true;	// referencja
-				SymbolTable[returnVarible].address = 8;	// wartość zwracana pod offsetem +8
+				SymbolTable[returnVarible].isReference = true;
+				SymbolTable[returnVarible].address = functionReturnOffset;
 			}
 		';'
 	|	PROC ID
 			{ 	
-				//OFFSET NA 8 ZMIANA NA LOCAL
+				const int procedureOffset = 8;
 				checkSymbolExist($2);
 				SymbolTable[$2].token = PROC;
 				isGlobal = false;
-				funcProcParmOffset = 8; // pierwszy (jeśli wystąpi) parametr będzie pod offsetem +8
-				writeToOutputByToken(PROC ,$2 ,true ,-1 ,true ,-1 ,true);	// wygeneruj początek procedury
+				funcProcParmOffset = procedureOffset;
+				writeToOutputByToken(PROC ,$2 ,true ,-1 ,true ,-1 ,true);
 			}
 		arguments
 			{	
-				//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
 				SymbolTable[$2].parameters = parameters;
 				parameters.clear();
 			}
@@ -202,19 +197,14 @@ arguments:
 
 parameter_list:
 		identifier_list ':' type
-			{	//WRZUCA Z argsVector DO PARAMETERS(ABY PRZEKAZAĆ DO ST DO TEGO ID) I FUNpARMS(DO LICZENIA OFFSETÓW)
+			{	
+			//WRZUCA Z argsVector DO PARAMETERS(ABY PRZEKAZAĆ DO ST DO TEGO ID) I FUNpARMS(DO LICZENIA OFFSETÓW)
 				int refType = $3;
-				//przelatuje przez każdy argument funkcji
-				//ustawia referencje
-				//ustawia typ
 				//wrzuca do funParams (dzieki temu później będą policzone offsety)
-				//wrzuca do parameters
 				for(auto &element : argsVector){
-					// oznacz jako referencję, ustaw typ oraz adres
 					SymbolTable[element].isReference = true;
 					if(refType == ARRAY)
 					{
-						/*printf("\nccc--- %d --- %d\n", SymbolTable[argsVector[i]].type, refType );*/
 						SymbolTable[element].token = ARRAY;
 						SymbolTable[element].type = helpVarArray;
 						SymbolTable[element].array = array_range;
@@ -224,19 +214,16 @@ parameter_list:
 						SymbolTable[element].type = refType;
 					}
 					parameters.push_back(make_pair(refType, array_range));	// dodaj do listy argumentów
-					funParams.push_front(element);					// lista po której będą nadawane adresy
+					funParams.push_front(element);	// lista po której będą nadawane adresy
 				}
 				argsVector.clear();
 			}
 	| parameter_list ';' identifier_list ':' type
 			{
-				//to co wyżej
-				int refType = $5;
 				for(auto &element : argsVector)
 				{
-					// oznacz jako referencję, ustaw typ oraz adres
 					SymbolTable[element].isReference = true;
-					if(refType == ARRAY)
+					if($5 == ARRAY)
 					{
 						SymbolTable[element].token = ARRAY;
 						SymbolTable[element].type = helpVarArray;
@@ -244,10 +231,10 @@ parameter_list:
 					}
 					else
 					{
-						 SymbolTable[element].type = refType;
+						 SymbolTable[element].type = $5;
 					}
-					parameters.push_back(make_pair(refType, array_range));	// dodaj do listy argumentów
-					funParams.push_front(element);			// lista po której będą nadawane adresy
+					parameters.push_back(make_pair($5, array_range));	// dodaj do listy argumentów
+					funParams.push_front(element);	// lista po której będą nadawane adresy
 				}
 				argsVector.clear();
 			}
@@ -275,26 +262,29 @@ statement:
 	| procedure_statement
 	| compound_statement
 	| IF expression
-	 		{	//ZRÓB LABEL $2 SPRAWDŹ CZY expression == 0 JAK NIE SKACZ
-				int firstLabel = addLabel();//tworzymy label dla jumpa
+	 		{	
+				//ZRÓB LABEL $2 SPRAWDŹ CZY expression == 0 JAK NIE SKACZ
+				int firstLabel = addLabel();
 				int newNumInST = insertNum("0",INTEGER);
 				//jump dla niespełnionego warunku (expression=0), czy $2(expression) jest równe newNumInST czyli(0)
 				writeToOutputByToken(_EQ, firstLabel, true, $2, true, newNumInST, true);
 				$2 = firstLabel;
 			}
 		THEN statement
-		 	{	//RÓB LABEL2 $5 RÓB JUMPA DO $5, RÓB LABEL $2
+		 	{	
+				//RÓB LABEL2 $5 RÓB JUMPA DO $5, RÓB LABEL $2
 				int secondLabel = addLabel();
 				$5 = secondLabel;
 				writeToOutputByToken(_JUMP, secondLabel, true, -1, true, -1, true);
 				writeToOutputByToken(_LABEL, $2, true, -1, true, -1, true);
 			}
 		ELSE statement
-			{	//RÓB LABEL $5
+			{
 				writeToOutputByToken(_LABEL, $5, true, -1, true, -1, true);
 			}
 	| WHILE
-			{	//RÓB START $1 I STOP SS->$2 LABEL, WYPISZ STARTLABEL
+			{	
+				//RÓB START $1 I STOP SS->$2 LABEL, WYPISZ STARTLABEL
 				int stopLabel = addLabel();
 				int startLabel = addLabel();
 				$1 = startLabel;
@@ -316,38 +306,31 @@ statement:
 
 variable:
 		ID
-			{	//ZWRÓĆ ID
-				int z = $1;
-				if(z == -1) {
-					yyerror("Niezadeklarowana zmienna!");
-					YYERROR;
-				}
-				$$ = z;
+			{
+				checkSymbolExist($1);
+				$$ = $1;
 			}
 	| ID '[' simple_expression ']'
 			{	//JAK SIMPLE_EXP REAL TO ZMIEŃ NA INT, ODEJMIJ OD INDEKSU INDEX STARTOWY(WYPISZ MINUS)
 				//MNOŻENIE INDEKSU RAZY TYP OCZLICZENIE ADRESU ELEMENTU W NOWEJ ZMIENNEJ, ZMIANA NA REF
 				//jak real zmien na int
-				int index = $3;
-				if(SymbolTable[index].type == REAL)
+				if(SymbolTable[$3].type == REAL)
 				{
 					int convertedVal = addTempSymbol(INTEGER);
-					writeToOutputByToken(_REALTOINT, convertedVal, true, index, true, -1, true);
-					index = convertedVal;
+					writeToOutputByToken(_REALTOINT, convertedVal, true, $3, true, -1, true);
+					$3 = convertedVal;
 				}
 				// wyciagnij indeks array w tablicy symboli i jej poczatkowy indeks
-				int arrayId = $1;
-				int startIndex = SymbolTable[arrayId].array.start;
-				int realIndex = addTempSymbol(INTEGER); //zmienna na index startowy rzeczywisty
-				writeToOutputByToken(_MINUS, realIndex, true, index, true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
+				int startIndex = SymbolTable[$1].array.start;
+				int realIndex = addTempSymbol(INTEGER); //zmienna na $3 startowy rzeczywisty
+				writeToOutputByToken(_MINUS, realIndex, true, $3, true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
 				//dodaj numy jak nie ma
 				int arrayElementSize = 0;
-				if(SymbolTable[arrayId].type == INTEGER)
+				if(SymbolTable[$1].type == INTEGER)
 				{
 					arrayElementSize = insertNum("4",INTEGER);
-
 				}
-				else if(SymbolTable[arrayId].type == REAL)
+				else if(SymbolTable[$1].type == REAL)
 				{
 					arrayElementSize = insertNum("8",INTEGER);
 				}
@@ -355,32 +338,34 @@ variable:
 				writeToOutputByToken(_MUL, realIndex, true, realIndex, true, arrayElementSize, true);
 				int varWithAddresOfArrayElement = addTempSymbol(INTEGER);
 				//adres początku tablicy + adres elementu w tablicy i mamy w efekcie adres z wartością w tablicy
-				writeToOutputByToken(_PLUS, varWithAddresOfArrayElement, true, arrayId, false, realIndex, true);
+				writeToOutputByToken(_PLUS, varWithAddresOfArrayElement, true, $1, false, realIndex, true);
 				//ustaw, że jest to adres referentychny bo nie wskazuje na wartość lecz na wskaźnik pod którym jest wartość adresu, ustawienei typu na int/real
 				SymbolTable[varWithAddresOfArrayElement].isReference = true;
-				SymbolTable[varWithAddresOfArrayElement].type = SymbolTable[arrayId].type;
+				SymbolTable[varWithAddresOfArrayElement].type = SymbolTable[$1].type;
 				$$ = varWithAddresOfArrayElement;
 			}
 	;
 
 procedure_statement:
 		ID
-			{	// wywołanie func/proc np aaa;WYWOŁANIE BEZ PARAMETRÓW GENERUJ CALL #SSS
-				int procF = $1;
-				if(procF==-1){
-					yyerror("Użycie niezadeklarowanej nazwy.");
-					YYERROR;
-				}
-				if(SymbolTable[procF].token == FUN || SymbolTable[procF].token==PROC){
-					if(SymbolTable[procF].parameters.size() > 0){
+			{	
+				// wywołanie func/proc np aaa;WYWOŁANIE BEZ PARAMETRÓW GENERUJ CALL #SSS
+				checkSymbolExist($1);
+				if(SymbolTable[$1].token == FUN || SymbolTable[$1].token == PROC)
+				{
+					if(SymbolTable[$1].parameters.size() > 0)
+					{
 						yyerror("Zła liczba parametrów.");
 						YYERROR;
-						}
-					writeToOutput(string("\tcall.i #" + SymbolTable[procF].name).c_str());
+					}
+					else
+					{
+						writeStrToOutput("\tcall.i #" + SymbolTable[$1].name);
+					}
 				}
 				else
 				{
-					yyerror("Program oczekiwał nazwy funkcji a otrzymał coś innego.");
+					yyerror("Program oczekiwał nazwy funkcji/procedury a otrzymał coś innego.");
 					YYERROR;
 				}
 			}
@@ -507,7 +492,7 @@ expression:
 				$$ = $1;
 			}
 	| simple_expression RELOP simple_expression
-			{	
+			{
 			//GENERUJE LABELE I SKACZE W ZALEŻNOŚCI CZY SPEŁNIONY WARUNEK ZWRACA RESULTVAR
 			int newLabelPass = addLabel();
 			//skok jeżeli warunek spełniony
@@ -533,7 +518,7 @@ expression:
 simple_expression:
 		term
 	| SIGN term
-			{	//DLA PLUSA ZWRÓĆ TERM DLA MINUSA ODEJMIJ OD ZERA I ZWRÓĆ
+			{
 				if($1 == _PLUS)
 				{
 					 $$ = $2;

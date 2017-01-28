@@ -10,7 +10,7 @@ vector <Symbol> SymbolTable;
 
 void checkSymbolExist(int id){
     if(id == -1) {
-		yyerror("Niezadeklarowana zmienna.");
+		yyerror("Niezadeklarowana zmienna/nazwa");
     }
 }
 
