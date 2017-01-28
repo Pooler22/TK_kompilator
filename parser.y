@@ -159,7 +159,7 @@ subprogram_head:
 			{	
 				const int functionReturnOffset = 12;
 				SymbolTable[$2].type = $7;	//return type ????????????????
-				int returnVarible = insert(SymbolTable[$2].name.c_str() ,VAR ,$7); 	
+				int returnVarible = insert(SymbolTable[$2].name ,VAR ,$7); 	
 				SymbolTable[returnVarible].isReference = true;
 				SymbolTable[returnVarible].address = functionReturnOffset;
 			}
@@ -394,7 +394,7 @@ procedure_statement:
 				else
 				{
 					string idName = SymbolTable[$1].name;
-					int index = lookupForFunction(idName.c_str());
+					int index = lookupForFunction(idName);
 					if(index == -1)
 					{
 						yyerror("Niezadeklarowana nazwa.");
@@ -462,7 +462,7 @@ procedure_statement:
 						stringstream helper;
 						helper << incspCount;
 						//generuj incsp
-						int incspNum = insertNum(helper.str().c_str(),INTEGER);
+						int incspNum = insertNum(helper.str(),INTEGER);
 						writeToOutputByToken(_INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else
@@ -566,10 +566,10 @@ factor:
 							YYERROR;
 						}
 						funCalled = addTempSymbol(SymbolTable[funCalled].type);//nowa zmienna na wartość którą zwróci funkcja
-						writeToOutput(string("\tpush.i #" + SymbolTable[funCalled].address).c_str());
-						writeToOutput(string("\tcall.i #" + SymbolTable[$1].name).c_str());
+						writeToOutput(string("\tpush.i #" + SymbolTable[funCalled].address));
+						writeToOutput(string("\tcall.i #" + SymbolTable[$1].name));
 						//funkcja bez parametrów więc incsp = 4
-						writeToOutput(string("\tincsp.i #4").c_str());
+						writeToOutput(string("\tincsp.i #4"));
 					}
 					else if(SymbolTable[funCalled].token == PROC)
 					{
@@ -583,7 +583,7 @@ factor:
 					//USUŃ Z argsVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA
 					//GENERUJ CALL I INCSP
 				string name = SymbolTable[$1].name;
-				int index = lookupForFunction(name.c_str());
+				int index = lookupForFunction(name);
 				if(index == -1)
 				{
 					yyerror("Niezadeklarowana nazwa.");
@@ -645,7 +645,7 @@ factor:
 						stringstream helper;
 						helper << incspCount;
 						// generuj incsp
-						int incspNum = insertNum(helper.str().c_str(),INTEGER);
+						int incspNum = insertNum(helper.str(),INTEGER);
 						writeToOutputByToken(_INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else if(SymbolTable[index].token==PROC)

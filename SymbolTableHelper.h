@@ -15,7 +15,6 @@ public:
     vector<Symbol> SymbolTable;
     SymbolTableHelper(void);
     void test();
-
 };
 
 #endif

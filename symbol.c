@@ -17,14 +17,14 @@ void checkSymbolExist(int id){
 // alokuje nową zmienną tymczasową typu type
 int addTempSymbol(int type) {
 	string ss = "$t" + to_string(variablesCount++);
-	int id = insert(ss.c_str(), VAR, type);
-	SymbolTable[id].address = getSymbolAddress(ss.c_str());
+	int id = insert(ss, VAR, type);
+	SymbolTable[id].address = getSymbolAddress(ss);
 	return id;
 }
 
 int addLabel() {
 	string ss = "lab" + to_string(labelsCount++);
-	int id = insert(ss.c_str(), _LABEL, NONE);
+	int id = insert(ss, _LABEL, NONE);
 	return id;
 }
 
@@ -128,11 +128,11 @@ void clearLocalSymbols() {
 }
 
 //wstawia wpis do ST
-int insert(const char *s, int token, int type) {
-	string name = s;
+int insert(string s, int token, int type) {
+// 	string name = s;
 	Symbol e;
 	e.token = token;	// typ tokenu (VAR, NUM, ARRAY, FUN, PROC)
-	e.name = name;
+	e.name = s;
 	e.type = type;
 	e.isGlobal = isGlobal;
 	e.isReference = false;
@@ -142,7 +142,7 @@ int insert(const char *s, int token, int type) {
 	return SymbolTable.size() - 1;
 }
 
-int insertNum(const char *numVal, int numType) {
+int insertNum(string numVal, int numType) {
 	int num = lookup(numVal);
 
 	if (num == -1) {
@@ -151,7 +151,7 @@ int insertNum(const char *numVal, int numType) {
 	return num;
 }
 
-int lookup(const char *s) {
+int lookup(string s) {
 	int p = SymbolTable.size() - 1;
 	
 	for (p; p >= 0; p--) {
@@ -162,7 +162,7 @@ int lookup(const char *s) {
 	return -1;
 }
 
-int lookupIfExistAndInsert(const char *s, int token, int type) {
+int lookupIfExistAndInsert(string s, int token, int type) {
 	int value = lookupIfExist(s);
 	
 	if (value == -1)
@@ -172,7 +172,7 @@ int lookupIfExistAndInsert(const char *s, int token, int type) {
 	return value;
 }
 
-int lookupIfExist(const char *s) {
+int lookupIfExist(string s) {
 	int p = SymbolTable.size() - 1;
 
 	//szukamy od końca w zakresie lokalnym
@@ -196,7 +196,7 @@ int lookupIfExist(const char *s) {
 	return -1;
 }
 
-int lookupForFunction(const char *s) {
+int lookupForFunction(string s) {
 	int p = SymbolTable.size() - 1;
 
 	for (p; p >= 0; p--) {

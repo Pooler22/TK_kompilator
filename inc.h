@@ -31,5 +31,4 @@ public:
 	list<pair<int,ArrayInfo> > parameters; // typy kolejnych parametrów (funkcja/procedura)
 };
 
-
 #endif

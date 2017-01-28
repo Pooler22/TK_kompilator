@@ -27,7 +27,7 @@ int getSymbolType(int index, bool isValue) {
 	}
 }
 
-int getToken(const char *strValIn) {
+int getToken(string strValIn) {
 	string strVal = strValIn;
 	if (strVal.compare("+") == 0) return _PLUS;
 	if (strVal.compare("-") == 0) return _MINUS;
@@ -263,7 +263,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 	}
 }
 
-void writeToOutput(const char *str) {
+void writeToOutput(string str) {
 	ss << "\n" << str;
 }
 
@@ -280,7 +280,7 @@ void writeToFile() {
 	ss.str(string()); //clear
 }
 
-void writeToOutputExt(const char *str0, const char *str1, const char *str2, const char *str3, const char *str4){
+void writeToOutputExt(string str0, string str1, string str2, string str3, string str4){
 	ss	<< "\n"
 		<< std::setw(8) << std::left<< str0 
 		<< std::setw(8) << std::left << str1 
