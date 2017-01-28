@@ -7,11 +7,9 @@ using namespace std;
 using std::cout;
 using std::setw;
 
-
 extern ofstream stream;
 stringstream ss;
 
-//generuje typ wyniku operacji na 2 Symbolach
 int getResultType(int id1, int id2) {
 	if (SymbolTable[id1].type == REAL || SymbolTable[id1].type == REAL) {
 		return REAL;
@@ -20,17 +18,15 @@ int getResultType(int id1, int id2) {
 	}
 }
 
-//funkcja zwraca typ Symbolów, jak adres to integer
 int getSymbolType(int index, bool isValue) {
 	if (isValue) {
 		return SymbolTable[index].type;
 	}
-	else {
+	else { //address
 		return INTEGER;
 	}
 }
 
-//zwraca token czyli w rzeczywistości liczbę na podstawie ciągu znaków
 int getToken(const char *strValIn) {
 	string strVal = strValIn;
 	if (strVal.compare("+") == 0) return _PLUS;
@@ -93,17 +89,13 @@ bool castToSameTypeForAssign(int resultVar, bool isValueResult, int rightVar, bo
 
 void writeVariableExt(int index){
 	if (!SymbolTable[index].isGlobal) {
-			ss << "BP";
-			if (SymbolTable[index].address >= 0) {
-				ss << "+";
-			}
-			ss << SymbolTable[index].address;
-		} 
-		else {
-			ss << SymbolTable[index].address;
-	}
+		ss << "BP";
+		if (SymbolTable[index].address >= 0) {
+			ss << "+";
+		}
+	} 
+	ss << SymbolTable[index].address;
 }
-
 
 //wypisuje pojedyńczą zmienną dostosowywuje znak referencji, wartości, BP
 void writeVariable(int index, bool isValue) {
@@ -125,13 +117,12 @@ void writeVariable(int index, bool isValue) {
 		}
 		writeVariableExt(index);
 	} else {
-		yyerror("Nieprawidłowy typ.\n");
+		yyerror("Nieprawidłowy typ");
 	}
 }
 
 //generuje kod dla prawie wszystkiego
 void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int leftVar, bool isValueLeft, int rightVar, bool isValueRight) {
-	
     string operationType;
 
 	if (resultVar != -1) {
@@ -150,7 +141,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		res = ss.str();
 		ss.str(string());//czyszczenie bo jest w res
 		size_t pos = res.find("??");
-		ss << "#" << -1 * getSymbolPosition(string(""));
+		ss << "#" << -1 * getSymbolAddress(string(""));
 		res.replace(pos, 2, ss.str());
 		stream.write(res.c_str(), res.size());
 		ss.str(string());
@@ -271,13 +262,10 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		ss << ",";
 		writeVariable(resultVar, isValueResult);
 	}
-	//stream.write(ss.str().c_str(), ss.str().size());
-	//ss.str(string());//czyści
 }
 
-//funkcja szybkiego zapisu bezpośrednio przez parser dla prostych i niezmiennych operacji
 void writeToOutput(const char *str) {
-	ss << str;
+	ss << "\n" << str;
 }
 
 void writeStrToOutput(string str) {
@@ -290,11 +278,12 @@ void writeIntToOutput(int i) {
 
 void writeToFile() {
 	stream.write(ss.str().c_str(), ss.str().size());
-	ss.str(string());//czyści
+	ss.str(string()); //clear
 }
 
 void writeToOutputExt(const char *str0, const char *str1, const char *str2, const char *str3, const char *str4){
-	ss 	<< std::setw(8) << std::left<< str0 
+	ss	<< "\n"
+		<< std::setw(8) << std::left<< str0 
 		<< std::setw(8) << std::left << str1 
 		<< std::setw(24) << std::left<< str2 
 		<< std::setw(9)<< std::left<< str3 

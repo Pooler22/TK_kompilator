@@ -44,7 +44,7 @@ int addTempSymbol(int type);//tworzy dodatkową zmienną dla obliczeń to "t" z 
 int insert (const char* s, int token, int type);//wrzuca do TS
 int yylex_destroy();//zabija parser
 int getResultType(int a, int b);//generuje typ wyniku dla 2 operandów
-int getSymbolPosition(string symbolName="");//oblicza index w którym bedzie nowa zmienna np 12 dla global, -24 dla local
+int getSymbolAddress(string symbolName="");//oblicza index w którym bedzie nowa zmienna np 12 dla global, -24 dla local
 int getSymbolSize(Symbol e);//podaje rozmiar Symbolu
 int addLabel();//tworzy kolejny label do skoku
 int lookup(const char* s);

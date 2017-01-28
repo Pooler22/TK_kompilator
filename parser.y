@@ -1,29 +1,17 @@
 %{
 	#include "global.h"
+
 	using namespace std;
 
-	int arrayTypeHelpery;
-	//lista na parametry funkcji
-	//lista zmiennych którym później będzie przydzielony typ podczas deklaracji
-	// | lista argumentów funkcji write, ride
-	vector<int> argsVector;
+	int arrayTypeHelpery;	//lista na parametry funkcji
+	int helpVarArray;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
+	int funcProcParmOffset = 8;	//początek offsetu parametrów fun/proc 8 dla proc 12 dla fun
+	ArrayInfo array_range;	//zakres tablicy ma start i stop
+	vector<int> argsVector; //lista zmiennych którym później będzie przydzielony typ podczas deklaracji | lista argumentów funkcji write, ride
+	list<pair<int, ArrayInfo> > parameters;	//lista na parametry funkcji
+	list<int> funParams; //LISTA DO OBLICZANIA INCSP
 
 	void yyerror(char const* s);
-
-	//zakres tablicy ma start i stop
-	ArrayInfo array_range;
-
-	//zmienna pomocnicza dla array do przekazania typu po deklaracji
-	int helpVarArray;
-
-	//początek offsetu parametrów fun/proc 8 dla proc 12 dla fun
-	int funcProcParmOffset=8;
-
-	//lista na parametry funkcji
-	list<pair<int, ArrayInfo> > parameters;
-
-	//LISTA DO OBLICZANIA INCSP
-	list<int> funParams;
 %}
 
 %token 	PROGRAM
@@ -53,20 +41,17 @@
 %token 	DONE
 
 
-
 %%
 
 program:
 		PROGRAM ID '(' start_identifiers ')' ';' declarations subprogram_declarations
 			{
-				writeToOutput("\n");
 				writeToOutput("lab0:");
 			}
 		compound_statement
 		'.'
 			{
-				writeToOutput("\n");
-				writeToOutputExt("","exit","",";exit ","\n");
+				writeToOutputExt("","exit","",";exit ","");
 				writeToFile();
 			}
 		eof
@@ -93,31 +78,29 @@ identifier_list:
 declarations:
 	declarations VAR identifier_list ':' type ';'
 		{
-			//ustawiamy typ i obliczamy offset(adres)
 			for(auto &element : argsVector)
 			{
 				if($5 == INTEGER || $5 == REAL)
 				{
-					SymbolTable[element].token = VAR;
 					SymbolTable[element].type = $5;
-					SymbolTable[element].address = getSymbolPosition(SymbolTable[element].name);
+					SymbolTable[element].token = VAR;
+					SymbolTable[element].address = getSymbolAddress(SymbolTable[element].name);
 				}
-				else if($5 == ARRAY) // dla tablic zapisz również dodatkowe dane
+				else if($5 == ARRAY)
 				{
-					SymbolTable[element].type = helpVarArray;
 					SymbolTable[element].token = $5;
-					SymbolTable[element].array = array_range;	// struktura zawierająca indeks początkowy i końcowy array
-					SymbolTable[element].address = getSymbolPosition(SymbolTable[element].name);
+					SymbolTable[element].type = helpVarArray;
+					SymbolTable[element].array = array_range;
+					SymbolTable[element].address = getSymbolAddress(SymbolTable[element].name);
 				}
 				else
 				{
-					yyerror("Nieznany typ.");YYERROR;
+					yyerror("Nieobslugiwany typ");
+					YYERROR;
 				}
 			}
-			argsVector.clear(); // wyczyść listę indeksów napotkanych ID
+			argsVector.clear();
 		}
-		//JAK DOSZLIŚMY W DEKLARACJI DO TYPU TO GO USTAW (DLA ARRAY POBIERZ DANE Z
-		// helpVarArray ORAZ array_range) NADAJ OFFSETY FLA ZMIENNYCH CZYŚĆ argsVector
 	| //empty
 	;
 
@@ -133,8 +116,6 @@ type:
 				array_range.stopVal = atoi(SymbolTable[$6].name.c_str());
 				array_range.argType = $9;
 			}
-			//przez helpVarArray przekazujemy typ USTAW DANE ARRAY
-			//(TYPY START/STOP INDEKSY) W array_range ORAZ HELPvARaRRAY
 	;
 
 standard_type:
@@ -149,17 +130,15 @@ subprogram_declarations:
 
 subprogram_declaration:
 		subprogram_head declarations compound_statement
-			{
-				//koniec proc/func
-				writeToOutput("\n");
-				writeToOutput("        leave                           ;leave   ");
+			{ //koniec fun/proc
+				writeToOutputExt("","leave","",";leave ","");
 				writeToOutputByToken(_RETURN,-1,true,-1,true,-1,true);
 				printSymbolTable();
+				//reset
 				clearLocalSymbols();
-				isGlobal = true;			//bo już po funkcji..
-				funcProcParmOffset = 8; 	//resetuje
+				isGlobal = true;
+				funcProcParmOffset = 8;
 			}
-			//KONIEC FUNKCJI LEAVE RETURN CZYŚĆ ZMIENNE LOKALNE ZMIEŃ NA GLOBALNY
 	;
 
 subprogram_head:
@@ -181,7 +160,7 @@ subprogram_head:
 		':' standard_type
 			{	
 				//ZRÓB MIEJSCE NA WARTOŚĆ ZWRACANĄ
-				writeStrToOutput(("WOW\n"+to_string($7)+"WOW\n"));
+/* 				writeStrToOutput(("WOW\n"+to_string($7)+"WOW\n")); */
 				SymbolTable[$2].type = $7;	//return type ????????????????
 				int returnVarible = insert(SymbolTable[$2].name.c_str() ,VAR ,$7); 	
 				//zmienna na wartosc zwracana
@@ -209,15 +188,14 @@ subprogram_head:
 
 arguments:
 		'(' parameter_list ')'
-			{ //USTAW OFFSETY DLA PARAMETRÓW +4...
-				//lista parametrów w funkcji nadaj im kolejne offsety
-				//iteruj po każdym parametrze
-				for(auto &it : funParams)
+			{
+				const int argumentSize = 4;
+				for(auto &argument : funParams)
 				{
-					SymbolTable[it].address = funcProcParmOffset;
-					funcProcParmOffset += 4;
+					SymbolTable[argument].address = funcProcParmOffset;
+					funcProcParmOffset += argumentSize;
 				}
-				funParams.clear(); // wyczyść listę przechowujacą parametry
+				funParams.clear();
 			}
 	| //empty
 	;
@@ -398,8 +376,7 @@ procedure_statement:
 						yyerror("Zła liczba parametrów.");
 						YYERROR;
 						}
-					writeToOutput(string("\n\tcall.i #").c_str());
-					writeToOutput(SymbolTable[procF].name.c_str());
+					writeToOutput(string("\tcall.i #" + SymbolTable[procF].name).c_str());
 				}
 				else
 				{
@@ -530,11 +507,11 @@ expression:
 				$$ = $1;
 			}
 	| simple_expression RELOP simple_expression
-			{	//GENERUJE LABELE I SKACZE W ZALEŻNOŚCI CZY SPEŁNIONY WARUNEK ZWRACA RESULTVAR
+			{	
+			//GENERUJE LABELE I SKACZE W ZALEŻNOŚCI CZY SPEŁNIONY WARUNEK ZWRACA RESULTVAR
 			int newLabelPass = addLabel();
-			int relopType = $2;
 			//skok jeżeli warunek spełniony
-			writeToOutputByToken(relopType, newLabelPass, true, $1, true, $3, true);
+			writeToOutputByToken($2, newLabelPass, true, $1, true, $3, true);
 			//wynik operacji RELOP czyli 0 lub 1
 			int resultVar = addTempSymbol(INTEGER);
 			int badVal = insertNum("0",INTEGER);
@@ -559,37 +536,34 @@ simple_expression:
 			{	//DLA PLUSA ZWRÓĆ TERM DLA MINUSA ODEJMIJ OD ZERA I ZWRÓĆ
 				if($1 == _PLUS)
 				{
-					 $$=$2;
+					 $$ = $2;
 				}
-				else
+				else if($1 == _MINUS)
 				{
-					//operacja jak mamy liczbę ujemną
+					//SUB //odejmie od 0 naszą wartość z term
 					$$ = addTempSymbol(SymbolTable[$2].type);
 					int tempVar = insertNum("0",SymbolTable[$2].type);
-					//SUB //odejmie od 0 naszą wartość z term
 					writeToOutputByToken($1, $$, true, tempVar, true, $2, true);
 				}
 			}
 	| simple_expression SIGN term
 			{	//GENERUJE OPERACJE + LUB - ZWRACA WYNIK
-				int resultType=getResultType($1, $3);
-				$$ = addTempSymbol(resultType);
+				$$ = addTempSymbol(getResultType($1, $3));
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
 			}
 	| simple_expression OR term
 			{	//GENERUJE OR ZWRACA WYNIK
-				int tempVar = addTempSymbol(INTEGER);
-				writeToOutputByToken(OR, tempVar, true, $1, true, $3, true);
-				$$ = tempVar;
+				int tmp = addTempSymbol(INTEGER);
+				$$ = tmp;
+				writeToOutputByToken(OR, tmp, true, $1, true, $3, true);
 			}
 	;
 
 term:
 		factor
-	| term MULOP factor
-			{	//ZWRACA WYNIK I ROBI OPERACJE DLA * MOD AND DIV
-				int resultType=getResultType($1, $3); // oczekiwany typ wyniku
-				$$ = addTempSymbol(resultType);//zwraca id w TS
+	| term MULOP factor //mulop div/mod/*..
+			{
+				$$ = addTempSymbol(getResultType($1, $3));
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
 			}
 	;
@@ -607,10 +581,10 @@ factor:
 							YYERROR;
 						}
 						funCalled = addTempSymbol(SymbolTable[funCalled].type);//nowa zmienna na wartość którą zwróci funkcja
-						writeToOutput(string("\n\tpush.i #").c_str());writeIntToOutput(SymbolTable[funCalled].address);
-						writeToOutput(string("\n\tcall.i #").c_str());writeToOutput(SymbolTable[$1].name.c_str());
+						writeToOutput(string("\tpush.i #" + SymbolTable[funCalled].address).c_str());
+						writeToOutput(string("\tcall.i #" + SymbolTable[$1].name).c_str());
 						//funkcja bez parametrów więc incsp = 4
-						writeToOutput(string("\n\tincsp.i #4").c_str());
+						writeToOutput(string("\tincsp.i #4").c_str());
 					}
 					else if(SymbolTable[funCalled].token == PROC)
 					{
@@ -706,10 +680,10 @@ factor:
 				$$ = $2;
 			}
 	| NOT factor
-			{	//RÓB LABELE JAK 0 TO SKACZ JAK NIE TO TEŻ SKACZ ...
+			{	
+			//RÓB LABELE JAK 0 TO SKACZ JAK NIE TO TEŻ SKACZ ...
 				int labelFactorEqualZero = addLabel();
 				int zeroId = insertNum("0",INTEGER);
-				/*cout << "not factor";*/
 				//jeq jeżeli factor == 0 skacz do miejsca w którym ustawimy wartość na 1
 				writeToOutputByToken(_EQ,labelFactorEqualZero, true, $2, true,  zeroId, true);
 				//jeżeli factor był inny niż 0 to zapisz 0 to zmiennej jak boło to samo to nie wykona bo przeskoczył
@@ -736,11 +710,9 @@ eof:
 			}
   ;
 
-
 %%
-
 
 void yyerror(char const *s)
 {
-	printf("Błąd w linii %d: %s \n",lineno, s);
+	printf("Blad w linii %d: %s \n",lineno, s);
 }

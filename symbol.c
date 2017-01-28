@@ -3,9 +3,9 @@
 
 using namespace std;
 
-vector <Symbol> SymbolTable;
 int variablesCount = 0;
 int labelsCount = 1;
+vector <Symbol> SymbolTable;
 
 
 void checkSymbolExist(int id){
@@ -18,8 +18,7 @@ void checkSymbolExist(int id){
 int addTempSymbol(int type) {
 	string ss = "$t" + to_string(variablesCount++);
 	int id = insert(ss.c_str(), VAR, type);
-	//wygeneruj pozycję gdzie bedzie ta nowa zmienna
-	SymbolTable[id].address = getSymbolPosition(ss.c_str());
+	SymbolTable[id].address = getSymbolAddress(ss.c_str());
 	return id;
 }
 
@@ -32,37 +31,30 @@ int addLabel() {
 void addVariable(int index, int type){
     SymbolTable[index].token = VAR;
 	SymbolTable[index].type = type;
-	SymbolTable[index].address = getSymbolPosition(SymbolTable[index].name);
+	SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 }
 
 void addArray(int index, int type,int helpVarArray,ArrayInfo array_range){
     SymbolTable[index].type = helpVarArray;
 	SymbolTable[index].token = type;
 	SymbolTable[index].array = array_range; // struktura zawierająca indeks początkowy i końcowy array
-	SymbolTable[index].address = getSymbolPosition(SymbolTable[index].name);
+	SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 }
 
-//generuje pozycję dla nowej zmiennej (rozmiar zaalokowanych zmiennych)
-//w danej części local/global
-//w zakresie globalnym pomijamy symbolName bo indeksy rosną w górę
-//w lokalnym odwrotnie
-int getSymbolPosition(string symbolName) {
+//generuje pozycję dla nowej zmiennej (rozmiar zaalokowanych zmiennych) w danej części local/global w zakresie globalnym pomijamy symbolName bo indeksy rosną w górę w lokalnym odwrotnie
+int getSymbolAddress(string symbolName) {
 	int varPosition = 0;
 
 	if (isGlobal) {
 		for (auto &symbol : SymbolTable) {
-			if (!symbol.isGlobal) {
-				break;
-			}
-			if (symbol.name != symbolName) {
+			if (symbol.isGlobal && symbol.name != symbolName) {
 				varPosition += getSymbolSize(symbol);
 			}
 		}
 	} else {
 		for (auto &symbol : SymbolTable) {
 			if (!symbol.isGlobal && symbol.address <= 0) {
-				varPosition -= getSymbolSize(symbol);
-				//na minusie tak jak na laboratoriach
+				varPosition -= getSymbolSize(symbol); //na minusie tak jak na laboratoriach
 			}
 		}
 	}
@@ -128,10 +120,9 @@ void clearLocalSymbols() {
 	int localVarsStart = 0;
 
 	for (auto &element : SymbolTable) {
-		if (!element.isGlobal) {
-			break;
+		if (element.isGlobal) {
+			localVarsStart++;
 		}
-		localVarsStart++;
 	}
 	SymbolTable.erase(SymbolTable.begin() + localVarsStart, SymbolTable.end());
 }
@@ -140,10 +131,10 @@ void clearLocalSymbols() {
 int insert(const char *s, int token, int type) {
 	string name = s;
 	Symbol e;
-	e.token = token;        // typ tokenu (VAR, NUM, ARRAY, FUN, PROC)
-	e.name = name;            //nazwa
+	e.token = token;	// typ tokenu (VAR, NUM, ARRAY, FUN, PROC)
+	e.name = name;
 	e.type = type;
-	e.isGlobal = isGlobal; // zakres
+	e.isGlobal = isGlobal;
 	e.isReference = false;
 	e.address = 0;
 
@@ -162,6 +153,7 @@ int insertNum(const char *numVal, int numType) {
 
 int lookup(const char *s) {
 	int p = SymbolTable.size() - 1;
+	
 	for (p; p >= 0; p--) {
 		if (SymbolTable[p].name == s) {
 			return p;
@@ -172,6 +164,7 @@ int lookup(const char *s) {
 
 int lookupIfExistAndInsert(const char *s, int token, int type) {
 	int value = lookupIfExist(s);
+	
 	if (value == -1)
 	{
 		value = insert(s, token, type);
@@ -185,18 +178,18 @@ int lookupIfExist(const char *s) {
 	//szukamy od końca w zakresie lokalnym
 	if (!isGlobal) {
 		for (p; p >= 0; p--) {
-			if (SymbolTable[p].isGlobal) {//brak w części lokalnej
-				return -1;
+			if (SymbolTable[p].isGlobal) {
+				return -1;	//brak w części lokalnej
 			}
-			if (SymbolTable[p].name == s) {//znaleziono w części lokalnej
-				return p;
+			if (SymbolTable[p].name == s) {
+				return p;	//znaleziono w części lokalnej
 			}
 		}
 	}
 	else{
-		for (p; p >= 0; p--) {//czy jest w części globalnej
-			if (SymbolTable[p].name == s) {//znaleziono
-				return p;
+		for (p; p >= 0; p--) {
+			if (SymbolTable[p].name == s) {
+				return p;	//jest w części globalnej
 			}
 		}
 	}
@@ -205,6 +198,7 @@ int lookupIfExist(const char *s) {
 
 int lookupForFunction(const char *s) {
 	int p = SymbolTable.size() - 1;
+
 	for (p; p >= 0; p--) {
 		if (SymbolTable[p].name == s && (SymbolTable[p].token == FUN || SymbolTable[p].token == PROC)) {
 			return p;
@@ -212,8 +206,6 @@ int lookupForFunction(const char *s) {
 	}
 	return -1;
 }
-//sprawdza czy istnieje zwraca -1 lub id Symbolu w tablicy symboli
-
 
 void printSymbolTable() {
 	cout << "; Symbol table dump" << endl;
@@ -235,29 +227,20 @@ void printSymbolTable() {
 				if(e.token == ARRAY){
 					cout << getDescription(e.token) << " [" << e.array.startVal << ".." << e.array.stopVal << "]" << " of ";
 				}
-				cout  << getDescription(e.type) << " offset=" << e.address
-				     << endl;
+				cout  << getDescription(e.type) << " offset=" << e.address << endl;
 			}
 			else if (e.token == PROC || e.token == FUN || e.token == _LABEL) {
 				cout << getDescription(e.token) << " " << e.name << endl;
 			}
 			else if (e.token == VAR) {
-				cout << getDescription(e.token) << " " << e.name << " " << getDescription(e.type) << " offset=" << e.address
-				     << endl;
+				cout << getDescription(e.token) << " " << e.name << " " << getDescription(e.type) << " offset=" << e.address << endl;
 			}
 			else if (e.token == ARRAY) {
-				cout << "variable" << " " << e.name << " array [" << e.array.startVal << ".." << e.array.stopVal << "] of "
-				     << getDescription(e.type) << " offset=" << e.address << endl;
+				cout << "variable" << " " << e.name << " array [" << e.array.startVal << ".." << e.array.stopVal << "] of " << getDescription(e.type) << " offset=" << e.address << endl;
 			}
 			else if (e.token == NUM) {
 				cout << getDescription(e.token) << " " << e.name << " " << getDescription(e.type) << endl;
 			}
-			// else if (e.token == ID) {
-			// 	cout << getDescription(e.token) << " " << e.name << endl;
-			// }
-			// else {
-			// 	cout << "OTHER" << e.name << " " << e.token << " " << e.type << " " << e.address << endl;
-			// }
 		}
 	}
 }
