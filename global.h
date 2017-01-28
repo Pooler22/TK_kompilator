@@ -21,6 +21,7 @@ extern vector<Symbol> SymbolTable;//TS
 extern ofstream stream;//stream do zapisu
 extern FILE* yyin;//plik wejściowy dla leksera
 
+void writeStrToOutput(string str);
 void addVariable(int index, int type);
 void addArray(int index, int type,int helpVarArray,ArrayInfo array_range);
 void checkSymbolExist(int id);

@@ -280,6 +280,10 @@ void writeToOutput(const char *str) {
 	ss << str;
 }
 
+void writeStrToOutput(string str) {
+	ss << str;
+}
+
 void writeIntToOutput(int i) {
 	ss << i;
 }

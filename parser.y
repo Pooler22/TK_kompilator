@@ -59,7 +59,8 @@
 program:
 		PROGRAM ID '(' start_identifiers ')' ';' declarations subprogram_declarations
 			{
-				writeToOutput("\nlab0:");
+				writeToOutput("\n");
+				writeToOutput("lab0:");
 			}
 		compound_statement
 		'.'
@@ -105,7 +106,7 @@ declarations:
 				{
 					SymbolTable[element].type = helpVarArray;
 					SymbolTable[element].token = $5;
-					SymbolTable[element].array = array_range;		// struktura zawierająca indeks początkowy i końcowy array
+					SymbolTable[element].array = array_range;	// struktura zawierająca indeks początkowy i końcowy array
 					SymbolTable[element].address = getSymbolPosition(SymbolTable[element].name);
 				}
 				else
@@ -127,10 +128,10 @@ type:
 				$$ = ARRAY;
 				helpVarArray = $9;
 				array_range.start = $3;
-				array_range.argType = $9;
 				array_range.stop = $6;
 				array_range.startVal = atoi(SymbolTable[$3].name.c_str());
 				array_range.stopVal = atoi(SymbolTable[$6].name.c_str());
+				array_range.argType = $9;
 			}
 			//przez helpVarArray przekazujemy typ USTAW DANE ARRAY
 			//(TYPY START/STOP INDEKSY) W array_range ORAZ HELPvARaRRAY
@@ -150,7 +151,8 @@ subprogram_declaration:
 		subprogram_head declarations compound_statement
 			{
 				//koniec proc/func
-				writeToOutput("\n\tleave");
+				writeToOutput("\n");
+				writeToOutput("        leave                           ;leave   ");
 				writeToOutputByToken(_RETURN,-1,true,-1,true,-1,true);
 				printSymbolTable();
 				clearLocalSymbols();
@@ -162,44 +164,43 @@ subprogram_declaration:
 
 subprogram_head:
 		FUN ID
-			{	//WYPISZ LABEL FUNKCJI OFFSET NA 12, ZMIANA NA LOCAL
-				int ii = $2;
-				if($2 == -1)
-				{
-					YYERROR;
-				}
-				SymbolTable[ii].token = FUN;
+			{	
+				//WYPISZ LABEL FUNKCJI OFFSET NA 12, ZMIANA NA LOCAL
+				checkSymbolExist($2);
+				SymbolTable[$2].token = FUN;
 				isGlobal = false;
-				writeToOutputByToken(FUN, ii ,true ,-1 ,true ,-1 ,true);//wypisuje label funkcji
 				funcProcParmOffset = 12; //wartość zwracana pod +8 pod +12 parms
+				writeToOutputByToken(FUN, $2 ,true ,-1 ,true ,-1 ,true);//wypisuje label funkcji
 			}
 		arguments
-			{	//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
+			{	
+				//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
 				SymbolTable[$2].parameters = parameters; //info o argumentach
 				parameters.clear();
 			}
 		':' standard_type
-			{	//ZRÓB MIEJSCE NA WARTOŚĆ ZWRACANĄ
-				SymbolTable[$2].type = $7;//return type
-				int returnVarible = insert(SymbolTable[$2].name.c_str() ,VAR ,$7); 	//zmienna na wartosc zwracana
-				SymbolTable[returnVarible].isReference = true;				  			// referencja
-				SymbolTable[returnVarible].address = 8;									// wartość zwracana pod offsetem +8
+			{	
+				//ZRÓB MIEJSCE NA WARTOŚĆ ZWRACANĄ
+				writeStrToOutput(("WOW\n"+to_string($7)+"WOW\n"));
+				SymbolTable[$2].type = $7;	//return type ????????????????
+				int returnVarible = insert(SymbolTable[$2].name.c_str() ,VAR ,$7); 	
+				//zmienna na wartosc zwracana
+				SymbolTable[returnVarible].isReference = true;	// referencja
+				SymbolTable[returnVarible].address = 8;	// wartość zwracana pod offsetem +8
 			}
 		';'
 	|	PROC ID
-			{ 	//OFFSET NA 8 ZMIANA NA LOCAL
-				int ii = $2;
-				if(ii == -1)
-				{
-					YYERROR;
-				}
-				SymbolTable[ii].token=PROC;
-				isGlobal=false;
-				writeToOutputByToken(PROC ,ii ,true ,-1 ,true ,-1 ,true);	// wygeneruj początek procedury
-				funcProcParmOffset = 8;				 				// pierwszy (jeśli wystąpi) parametr będzie pod offsetem +8
+			{ 	
+				//OFFSET NA 8 ZMIANA NA LOCAL
+				checkSymbolExist($2);
+				SymbolTable[$2].token = PROC;
+				isGlobal = false;
+				funcProcParmOffset = 8; // pierwszy (jeśli wystąpi) parametr będzie pod offsetem +8
+				writeToOutputByToken(PROC ,$2 ,true ,-1 ,true ,-1 ,true);	// wygeneruj początek procedury
 			}
 		arguments
-			{	//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
+			{	
+				//PRZYPISZ PARAMETRY DO ST.PARMS Z PARAMETERS
 				SymbolTable[$2].parameters = parameters;
 				parameters.clear();
 			}

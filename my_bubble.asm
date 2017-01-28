@@ -18,7 +18,7 @@ lab4:
         mov.i   BP-20,BP-4
         jump.i  #lab2                   ;jump.i  lab2
 lab1:
-	leave
+        leave                           ;leave   
         return                          ;return  
 bubblesort:
         enter.i #88
@@ -80,7 +80,7 @@ lab9:
         mov.i   BP-88,BP-4
         jump.i  #lab6                   ;jump.i  lab6
 lab5:
-	leave
+        leave                           ;leave   
         return                          ;return  
 wypisztab:
         enter.i #20
@@ -101,7 +101,7 @@ lab20:
         mov.i   BP-20,BP-4
         jump.i  #lab18                   ;jump.i  lab18
 lab17:
-	leave
+        leave                           ;leave   
         return                          ;return  
 lab0:
         push.i #12
