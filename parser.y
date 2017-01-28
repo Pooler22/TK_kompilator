@@ -4,7 +4,7 @@
 	using namespace std;
 
 	int arrayTypeHelpery;	//lista na parametry funkcji
-	int helpVarArray;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
+	int typeArrayElement;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
 	int funcProcParmOffset = 8;	//początek offsetu parametrów fun/proc 8 dla proc 12 dla fun
 	ArrayInfo array_range;	//zakres tablicy ma start i stop
 	vector<int> argsVector; //lista zmiennych którym później będzie przydzielony typ podczas deklaracji | lista argumentów funkcji write, ride
@@ -81,16 +81,11 @@ declarations:
 			{
 				if($5 == INTEGER || $5 == REAL)
 				{
-					SymbolTable[element].type = $5;
-					SymbolTable[element].token = VAR;
-					SymbolTable[element].address = getSymbolAddress(SymbolTable[element].name);
+					addVariable(element,$5);
 				}
 				else if($5 == ARRAY)
 				{
-					SymbolTable[element].token = $5;
-					SymbolTable[element].type = helpVarArray;
-					SymbolTable[element].array = array_range;
-					SymbolTable[element].address = getSymbolAddress(SymbolTable[element].name);
+					addArray(element, $5, typeArrayElement, array_range);
 				}
 				else
 				{
@@ -108,7 +103,7 @@ type:
 	| ARRAY '[' NUM '.' '.' NUM ']' OF standard_type
 			{
 				$$ = ARRAY;
-				helpVarArray = $9;
+				typeArrayElement = $9;
 				array_range.start = $3;
 				array_range.stop = $6;
 				array_range.startVal = atoi(SymbolTable[$3].name.c_str());
@@ -129,7 +124,8 @@ subprogram_declarations:
 
 subprogram_declaration:
 		subprogram_head declarations compound_statement
-			{ //koniec fun/proc
+			{ 
+				//end of fun/proc
 				writeToOutputExt("","leave","",";leave ","");
 				writeToOutputByToken(_RETURN,-1,true,-1,true,-1,true);
 				printSymbolTable();
@@ -199,21 +195,20 @@ parameter_list:
 		identifier_list ':' type
 			{	
 			//WRZUCA Z argsVector DO PARAMETERS(ABY PRZEKAZAĆ DO ST DO TEGO ID) I FUNpARMS(DO LICZENIA OFFSETÓW)
-				int refType = $3;
 				//wrzuca do funParams (dzieki temu później będą policzone offsety)
 				for(auto &element : argsVector){
 					SymbolTable[element].isReference = true;
-					if(refType == ARRAY)
+					if($3 == ARRAY)
 					{
 						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = helpVarArray;
+						SymbolTable[element].type = typeArrayElement;
 						SymbolTable[element].array = array_range;
 					}
 					else
 					{
-						SymbolTable[element].type = refType;
+						SymbolTable[element].type = $3;
 					}
-					parameters.push_back(make_pair(refType, array_range));	// dodaj do listy argumentów
+					parameters.push_back(make_pair($3, array_range));	// dodaj do listy argumentów
 					funParams.push_front(element);	// lista po której będą nadawane adresy
 				}
 				argsVector.clear();
@@ -226,7 +221,7 @@ parameter_list:
 					if($5 == ARRAY)
 					{
 						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = helpVarArray;
+						SymbolTable[element].type = typeArrayElement;
 						SymbolTable[element].array = array_range;
 					}
 					else

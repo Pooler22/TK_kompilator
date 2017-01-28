@@ -14,7 +14,6 @@ void checkSymbolExist(int id){
     }
 }
 
-// alokuje nową zmienną tymczasową typu type
 int addTempSymbol(int type) {
 	string ss = "$t" + to_string(variablesCount++);
 	int id = insert(ss, VAR, type);
@@ -34,9 +33,9 @@ void addVariable(int index, int type){
 	SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 }
 
-void addArray(int index, int type,int helpVarArray,ArrayInfo array_range){
-    SymbolTable[index].type = helpVarArray;
-	SymbolTable[index].token = type;
+void addArray(int index, int type,int helpVarArray, ArrayInfo array_range){
+    SymbolTable[index].token = type;
+	SymbolTable[index].type = helpVarArray;
 	SymbolTable[index].array = array_range; // struktura zawierająca indeks początkowy i końcowy array
 	SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 }
@@ -54,7 +53,7 @@ int getSymbolAddress(string symbolName) {
 	} else {
 		for (auto &symbol : SymbolTable) {
 			if (!symbol.isGlobal && symbol.address <= 0) {
-				varPosition -= getSymbolSize(symbol); //na minusie tak jak na laboratoriach
+				varPosition -= getSymbolSize(symbol);
 			}
 		}
 	}
