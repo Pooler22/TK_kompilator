@@ -1,9 +1,11 @@
 %{
-	#include "global.h"
-	#include "parser.h"
+	#include "global.hpp"
+	#include "parser.hpp"
 
 	int lineno = 1;
 %}
+
+%option noyywrap
 
 letter				[a-zA-Z]
 digit 				[0-9]
@@ -56,9 +58,9 @@ while				{return WHILE;}
 {sign}				{yylval = getToken(yytext); return SIGN;}
 {assignop}			{return ASSIGN;}
 
-{id}				{ yylval = lookupIfExistAndInsert(yytext, ID, NONE); return ID; }
-{digits}			{ yylval = lookupIfExistAndInsert(yytext, NUM, INTEGER); return NUM; }
-{num}				{ yylval = lookupIfExistAndInsert(yytext, NUM, REAL); return NUM; }
+{id}				{yylval = lookupIfExistAndInsert(yytext, ID, NONE); return ID;}
+{digits}			{yylval = lookupIfExistAndInsert(yytext, NUM, INTEGER); return NUM;}
+{num}				{yylval = lookupIfExistAndInsert(yytext, NUM, REAL); return NUM;}
 
 <<EOF>>				{return DONE;}
 .					{return *yytext;}

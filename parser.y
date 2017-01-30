@@ -1,14 +1,14 @@
 %{
-	#include "global.h"
+	#include "global.hpp"
 
 	using namespace std;
 
-	int tmpArrayElementType;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
+	int arrayElementTypeHelper;
 	int startOffsertParamtersFunProcHelper = 8;	// 8 dla proc 12 dla fun
-	ArrayInfo tmpArrayInfo;
-	vector<int> tmpArgParamVector; //lista zmiennych którym później będzie przydzielony typ podczas deklaracji | lista argumentów funkcji write, ride
-	list<pair<int, ArrayInfo> > paramHelper;	//lista na parametry funkcji
-	list<int> funParamsHelper; //LISTA DO OBLICZANIA INCSP
+	ArrayInfo arrayInfoHelper;
+	vector<int> argParamVectorHelper;
+	list<pair<int, ArrayInfo> > paramHelper;
+	list<int> funParamsHelper;
 
 	void yyerror(char const* s);
 %}
@@ -64,19 +64,19 @@ identifier_list:
 		ID
 			{
 				checkSymbolExist($1);
-				tmpArgParamVector.push_back($1);
+				argParamVectorHelper.push_back($1);
 			}
 	| identifier_list ',' ID
 			{
 				checkSymbolExist($3);
-				tmpArgParamVector.push_back($3);
+				argParamVectorHelper.push_back($3);
 			}
 	;
 
 declarations:
 	declarations VAR identifier_list ':' type ';'
 		{
-			for(auto &index : tmpArgParamVector)
+			for(auto &index : argParamVectorHelper)
 			{
 				if($5 == INTEGER || $5 == REAL)
 				{
@@ -87,8 +87,8 @@ declarations:
 				else if($5 == ARRAY)
 				{
 					SymbolTable[index].token = $5;
-					SymbolTable[index].type = tmpArrayElementType;
-					SymbolTable[index].arrayInfo = tmpArrayInfo;
+					SymbolTable[index].type = arrayElementTypeHelper;
+					SymbolTable[index].arrayInfo = arrayInfoHelper;
 					SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 				}
 				else
@@ -97,7 +97,7 @@ declarations:
 					YYERROR;
 				}
 			}
-			tmpArgParamVector.clear();
+			argParamVectorHelper.clear();
 		}
 	| //empty
 	;
@@ -107,12 +107,12 @@ type:
 	| ARRAY '[' NUM '.' '.' NUM ']' OF standard_type
 			{
 				$$ = ARRAY;
-				tmpArrayElementType = $9;
-				tmpArrayInfo.startId = $3;
-				tmpArrayInfo.stopId = $6;
-				tmpArrayInfo.startVal = atoi(SymbolTable[$3].name.c_str());
-				tmpArrayInfo.stopVal = atoi(SymbolTable[$6].name.c_str());
-				tmpArrayInfo.argType = $9;
+				arrayElementTypeHelper = $9;
+				arrayInfoHelper.startId = $3;
+				arrayInfoHelper.stopId = $6;
+				arrayInfoHelper.startVal = atoi(SymbolTable[$3].name.c_str());
+				arrayInfoHelper.stopVal = atoi(SymbolTable[$6].name.c_str());
+				arrayInfoHelper.argType = $9;
 			}
 	;
 
@@ -144,7 +144,6 @@ subprogram_head:
 		FUN ID
 			{	
 				const int functionOffset = 12;
-				
 				checkSymbolExist($2);
 				SymbolTable[$2].token = FUN;
 				isGlobal = false;
@@ -159,17 +158,15 @@ subprogram_head:
 		':' standard_type
 			{	
 				const int functionReturnOffset = 12;
-				
 				SymbolTable[$2].type = $7;	//return type ????????????????
-				int index = insert(SymbolTable[$2].name ,VAR ,$7); 	
-				SymbolTable[index].isReference = true;
-				SymbolTable[index].address = functionReturnOffset;
+				int returnVarible = insert(SymbolTable[$2].name ,VAR ,$7); 	
+				SymbolTable[returnVarible].isReference = true;
+				SymbolTable[returnVarible].address = functionReturnOffset;
 			}
 		';'
 	|	PROC ID
 			{ 	
 				const int procedureOffset = 8;
-				
 				checkSymbolExist($2);
 				SymbolTable[$2].token = PROC;
 				isGlobal = false;
@@ -188,7 +185,6 @@ arguments:
 		'(' parameter_list ')'
 			{
 				const int argumentSize = 4;
-				
 				for(auto &argument : funParamsHelper)
 				{
 					SymbolTable[argument].address = startOffsertParamtersFunProcHelper;
@@ -201,43 +197,43 @@ arguments:
 
 parameter_list:
 		identifier_list ':' type
-			{
-				for(auto &element : tmpArgParamVector){
-					SymbolTable[element].isReference = true;
+			{	
+				for(auto &index : argParamVectorHelper){
+					SymbolTable[index].isReference = true;
 					if($3 == ARRAY)
 					{
-						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = tmpArrayElementType;
-						SymbolTable[element].arrayInfo = tmpArrayInfo;
+						SymbolTable[index].token = ARRAY;
+						SymbolTable[index].type = arrayElementTypeHelper;
+						SymbolTable[index].arrayInfo = arrayInfoHelper;
 					}
 					else
 					{
-						SymbolTable[element].type = $3;
+						SymbolTable[index].type = $3;
 					}
-					paramHelper.push_back(make_pair($3, tmpArrayInfo));
-					funParamsHelper.push_front(element);
+					paramHelper.push_back(make_pair($3, arrayInfoHelper));
+					funParamsHelper.push_front(index);
 				}
-				tmpArgParamVector.clear();
+				argParamVectorHelper.clear();
 			}
 	| parameter_list ';' identifier_list ':' type
 			{
-				for(auto &element : tmpArgParamVector)
+				for(auto &index : argParamVectorHelper)
 				{
-					SymbolTable[element].isReference = true;
+					SymbolTable[index].isReference = true;
 					if($5 == ARRAY)
 					{
-						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = tmpArrayElementType;
-						SymbolTable[element].arrayInfo = tmpArrayInfo;
+						SymbolTable[index].token = ARRAY;
+						SymbolTable[index].type = arrayElementTypeHelper;
+						SymbolTable[index].arrayInfo = arrayInfoHelper;
 					}
 					else
 					{
-						 SymbolTable[element].type = $5;
+						 SymbolTable[index].type = $5;
 					}
-					paramHelper.push_back(make_pair($5, tmpArrayInfo));
-					funParamsHelper.push_front(element);
+					paramHelper.push_back(make_pair($5, arrayInfoHelper));
+					funParamsHelper.push_front(index);
 				}
-				tmpArgParamVector.clear();
+				argParamVectorHelper.clear();
 			}
 	;
 
@@ -264,18 +260,17 @@ statement:
 	| compound_statement
 	| IF expression
 	 		{	
-				////jump if expression = 0
 				int label1 = insertLabel();
 				int num = insertNum("0",INTEGER);
-				$2 = label1;
 				writeToOutputByToken(EQ, label1, true, $2, true, num, true);
+				$2 = label1;
 			}
 		THEN statement
 		 	{	
 				int label2 = insertLabel();
-				$5 = label2;
 				writeToOutputByToken(JUMP, label2, true, -1, true, -1, true);
 				writeToOutputByToken(LABEL, $2, true, -1, true, -1, true);
+				$5 = label2;
 			}
 		ELSE statement
 			{
@@ -290,12 +285,11 @@ statement:
 				writeToOutputByToken(LABEL, labelStart, true, -1, true, -1, true);
 			}
 		expression DO
-			{
-				int id = insertNum("0",INTEGER);
+			{	int id = insertNum("0",INTEGER);
 				writeToOutputByToken(EQ, $2, true, $3, true, id, true);
 			}
 		statement
-			{
+			{	
 				writeToOutputByToken(JUMP, $1, true, -1, true, -1, true);
 				writeToOutputByToken(LABEL, $2, true, -1, true, -1, true);
 			}
@@ -308,20 +302,18 @@ variable:
 				$$ = $1;
 			}
 	| ID '[' simple_expression ']'
-			{	//JAK SIMPLE_EXP REAL TO ZMIEŃ NA INT, ODEJMIJ OD INDEKSU INDEX STARTOWY(WYPISZ MINUS)
-				//MNOŻENIE INDEKSU RAZY TYP OCZLICZENIE ADRESU ELEMENTU W NOWEJ ZMIENNEJ, ZMIANA NA REF
-				//jak real zmien na int
+			{	
 				if(SymbolTable[$3].type == REAL)
 				{
-					int convertedVal = insertTempSymbol(INTEGER);
-					writeToOutputByToken(REALTOINT, convertedVal, true, $3, true, -1, true);
-					$3 = convertedVal;
+					int t = insertTempSymbol(INTEGER);
+					writeToOutputByToken(REALTOINT, t, true, $3, true, -1, true);
+					$3 = t;
 				}
-				// wyciagnij indeks array w tablicy symboli i jej poczatkowy indeks
-				int startIndex = SymbolTable[$1].arrayInfo.startId;
-				int realIndex = insertTempSymbol(INTEGER); //zmienna na $3 startowy rzeczywisty
-				writeToOutputByToken(MINUS, realIndex, true, $3, true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
-				//dodaj numy jak nie ma
+				
+				int startId = SymbolTable[$1].arrayInfo.startId;
+				int t1 = insertTempSymbol(INTEGER);
+				writeToOutputByToken(MINUS, t1, true, $3, true, startId, true);
+				
 				int arrayElementSize = 0;
 				if(SymbolTable[$1].type == INTEGER)
 				{
@@ -331,28 +323,26 @@ variable:
 				{
 					arrayElementSize = insertNum("8",INTEGER);
 				}
-				//element * pozycja
-				writeToOutputByToken(MUL, realIndex, true, realIndex, true, arrayElementSize, true);
-				int varWithAddresOfArrayElement = insertTempSymbol(INTEGER);
-				//adres początku tablicy + adres elementu w tablicy i mamy w efekcie adres z wartością w tablicy
-				writeToOutputByToken(PLUS, varWithAddresOfArrayElement, true, $1, false, realIndex, true);
-				//ustaw, że jest to adres referentychny bo nie wskazuje na wartość lecz na wskaźnik pod którym jest wartość adresu, ustawienei typu na int/real
-				SymbolTable[varWithAddresOfArrayElement].isReference = true;
-				SymbolTable[varWithAddresOfArrayElement].type = SymbolTable[$1].type;
-				$$ = varWithAddresOfArrayElement;
+				
+				writeToOutputByToken(MUL, t1, true, t1, true, arrayElementSize, true);
+				int addressArray = insertTempSymbol(INTEGER);
+				writeToOutputByToken(PLUS, addressArray, true, $1, false, t1, true);
+
+				SymbolTable[addressArray].isReference = true;
+				SymbolTable[addressArray].type = SymbolTable[$1].type;
+				$$ = addressArray;
 			}
 	;
 
 procedure_statement:
 		ID
 			{	
-				// wywołanie func/proc np aaa;WYWOŁANIE BEZ PARAMETRÓW GENERUJ CALL #SSS
 				checkSymbolExist($1);
 				if(SymbolTable[$1].token == FUN || SymbolTable[$1].token == PROC)
 				{
 					if(SymbolTable[$1].parameters.size() > 0)
 					{
-						yyerror("Zła liczba parametrów.");
+						yyerror("Zla liczba parametrow.");
 						YYERROR;
 					}
 					else
@@ -362,103 +352,91 @@ procedure_statement:
 				}
 				else
 				{
-					yyerror("Program oczekiwał nazwy funkcji/procedury a otrzymał coś innego.");
+					yyerror("Wymagana nazwa funkcji procedury");
 					YYERROR;
 				}
 			}
 	| ID '(' expression_list ')'
-			{	//JAK READ WRITE WYPISZ ..
-				//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
-				//USUŃ Z tmpArgParamVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA GENERUJ CALL I INCSP
-				int index = $1;
-				int w = lookup("write");
-				int r = lookup("read");
-				if(index == w || index == r)
+			{	
+				int wId = lookup("write");
+				int rId = lookup("read");
+				if($1 == wId || $1 == rId)
 				{
-					//dla każdego elementu z tmpArgParamVector
-					for(auto &element : tmpArgParamVector)
+					for(auto &index : argParamVectorHelper)
 					{
-						if($1 == r)
+						if($1 == rId)
 						{
-							 writeToOutputByToken(READ, element,true, -1, true, -1, true );
+							 writeToOutputByToken(READ, index, true, -1, true, -1, true );
 						}
-						if($1 == w)
+						if($1 == wId)
 						{
-							 writeToOutputByToken(WRITE,element,true, -1, true, -1, true );
+							 writeToOutputByToken(WRITE, index, true, -1, true, -1, true );
 						}
 					}
 				}
 				else
 				{
-					string idName = SymbolTable[$1].name;
-					int index = lookupForFunction(idName);
-					if(index == -1)
+					string funName = SymbolTable[$1].name;
+					int finId = lookupForFunction(funName);
+					if(finId == -1)
 					{
 						yyerror("Niezadeklarowana nazwa.");
 						YYERROR;
 					}
-					if(SymbolTable[index].token == FUN || SymbolTable[index].token == PROC)
+					if(SymbolTable[finId].token == FUN || SymbolTable[finId].token == PROC)
 					{
-					//podano za mało parametrów
-						if(tmpArgParamVector.size() < SymbolTable[index].parameters.size())
+						if(argParamVectorHelper.size() < SymbolTable[finId].parameters.size())
 						{
 							yyerror("Nieprawidłowa liczba parametrów.");
 							YYERROR;
 						}
-						// zmienna na rozmiar wrzuconych na stos referencji
+						
 						int incspCount = 0;
-						//iterator po argumentach
-						list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
-						int startPoint = tmpArgParamVector.size() - SymbolTable[index].parameters.size();
-						// przejdź po argumentach
-						for(int i = startPoint; i < tmpArgParamVector.size(); i++)
+						list<pair<int,ArrayInfo> >::iterator it = SymbolTable[finId].parameters.begin();
+						int startPoint = argParamVectorHelper.size() - SymbolTable[finId].parameters.size();
+						
+						for(int i = startPoint; i < argParamVectorHelper.size(); i++)
 						{
-							int id = tmpArgParamVector[i];
-							// typ argumentu procedury/funkcji
+							int id = argParamVectorHelper[i];
 							int argumentType = (*it).first;
 							if(argumentType == ARRAY)
 							{
 								argumentType = (*it).second.argType;
 							}
-							// jeśli przekazujemy NUM to stwórz nowy obiekt w tablicy
-							if(SymbolTable[tmpArgParamVector[i]].token == NUM)
+
+							if(SymbolTable[argParamVectorHelper[i]].token == NUM)
 							{
-								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, tmpArgParamVector[i], true);
+								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
 								id = numVar;
 							}
-							// typ przekazywany
+
 							int passedType = SymbolTable[id].type;
-							// typ argumentu funkcji i typ wartosci przekazywanej są różne (INT i REAL) - konwersja
 							if(argumentType != passedType){
 								int tempVar = insertTempSymbol(argumentType);
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
 							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
-							incspCount+=4; // zwieksz adres parametrów
+							incspCount += 4;
 							it++;
 						}
-						// usun z wektora argumenty
-						int size = tmpArgParamVector.size();
-						for(int i = startPoint;i<size;i++)
+
+						int size = argParamVectorHelper.size();
+						for(int i = startPoint;i < size; i++)
 						{
-							tmpArgParamVector.pop_back();
+							argParamVectorHelper.pop_back();
 						}
-						if(SymbolTable[index].token==FUN)
+						if(SymbolTable[$1].token == FUN)
 						{
-							// zmienna na wartość zwracaną
-							int id = insertTempSymbol(SymbolTable[index].type);
+							int id = insertTempSymbol(SymbolTable[$1].type);
 							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
-							incspCount+=4;	// zwiększ rozmiar
+							incspCount += 4;
 							$$ = id;
 						}
-						// generuj call
-						writeToOutputByToken(CALL, index,true,-1,true,-1,true);
+						writeToOutputByToken(CALL, $1,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
-						//generuj incsp
 						int incspNum = insertNum(helper.str(),INTEGER);
 						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
 					}
@@ -468,18 +446,18 @@ procedure_statement:
 						YYERROR;
 					}
 				}
-				tmpArgParamVector.clear();
+				argParamVectorHelper.clear();
 			}
 	;
 
 expression_list:
 		expression
 			{
-				tmpArgParamVector.push_back($1);
+				argParamVectorHelper.push_back($1);
 			}
 	| expression_list ',' expression
 			{
-				tmpArgParamVector.push_back($3);
+				argParamVectorHelper.push_back($3);
 			}
 	;
 
@@ -490,25 +468,18 @@ expression:
 			}
 	| simple_expression RELOP simple_expression
 			{
-			//GENERUJE LABELE I SKACZE W ZALEŻNOŚCI CZY SPEŁNIONY WARUNEK ZWRACA RESULTVAR
 			int newLabelPass = insertLabel();
-			//skok jeżeli warunek spełniony
 			writeToOutputByToken($2, newLabelPass, true, $1, true, $3, true);
-			//wynik operacji RELOP czyli 0 lub 1
-			int resultVar = insertTempSymbol(INTEGER);
-			int badVal = insertNum("0",INTEGER);
-			//ustawia resultVar na 0 (warunek nie spełniony, nie przeskoczyliśmy)
-			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, badVal, true);
-			//label ostatni za którym idzie dalsza część programu ten po obu (0 i 1)
+			int result = insertTempSymbol(INTEGER);
+			int incorrect = insertNum("0",INTEGER);
+			writeToOutputByToken(ASSIGN, result, true, -1, true, incorrect, true);
 			int newLabelFinish = insertLabel();
 			writeToOutputByToken(JUMP, newLabelFinish, true, -1, true, -1, true);
-			//jeżeli warunek spełniony
 			writeToOutputByToken(LABEL, newLabelPass, true, -1, true, -1, true);
-			int goodVal = insertNum("1",INTEGER);
-			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, goodVal, true);//ustawia resultVar na 1 (warunek spełniony)
-			//Label za całym wyrażeniem
+			int correct = insertNum("1",INTEGER);
+			writeToOutputByToken(ASSIGN, result, true, -1, true, correct, true);
 			writeToOutputByToken(LABEL, newLabelFinish, true, -1, true, -1, true);
-			$$ = resultVar;
+			$$ = result;
 		}
 	;
 
@@ -522,28 +493,26 @@ simple_expression:
 				}
 				else if($1 == MINUS)
 				{
-					//SUB //odejmie od 0 naszą wartość z term
 					$$ = insertTempSymbol(SymbolTable[$2].type);
-					int tempVar = insertNum("0",SymbolTable[$2].type);
-					writeToOutputByToken($1, $$, true, tempVar, true, $2, true);
+					int t0 = insertNum("0",SymbolTable[$2].type);
+					writeToOutputByToken($1, $$, true, t0, true, $2, true);
 				}
 			}
 	| simple_expression SIGN term
-			{	//GENERUJE OPERACJE + LUB - ZWRACA WYNIK
+			{
 				$$ = insertTempSymbol(getResultType($1, $3));
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
 			}
 	| simple_expression OR term
-			{	//GENERUJE OR ZWRACA WYNIK
-				int tmp = insertTempSymbol(INTEGER);
-				$$ = tmp;
-				writeToOutputByToken(OR, tmp, true, $1, true, $3, true);
+			{
+				$$ = insertTempSymbol(INTEGER);
+				writeToOutputByToken(OR, $$, true, $1, true, $3, true);
 			}
 	;
 
 term:
 		factor
-	| term MULOP factor //mulop div/mod/*..
+	| term MULOP factor
 			{
 				$$ = insertTempSymbol(getResultType($1, $3));
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
@@ -552,33 +521,29 @@ term:
 
 factor:
 		variable
-			{	//PROC NIE MOŻE BO NIE ZWRACA WYNIKU, WIĘC WYWOŁANIE FUNKCJI BEZ PARM  LUB ZMIENNA
-				//JAK FUN GENERUJ PUSH CALL I INCSP JAK ZMIENNA ZWRÓĆ VARIABLE JAK FUN ADRES ZWROTNY
-					int funCalled = $1;
-					if(SymbolTable[funCalled].token == FUN)
+			{	//fun bez parametru lub var
+				int var = $1;
+				if(SymbolTable[var].token == FUN)
+				{
+					if(SymbolTable[var].parameters.size() > 0)
 					{
-						if(SymbolTable[funCalled].parameters.size() > 0)
-						{
-							yyerror("Wywołanie funkcji przyjmującej parametry bez parametrów");
-							YYERROR;
-						}
-						funCalled = insertTempSymbol(SymbolTable[funCalled].type);//nowa zmienna na wartość którą zwróci funkcja
-						writeToOutput(string("\tpush.i #" + SymbolTable[funCalled].address));
-						writeToOutput(string("\tcall.i #" + SymbolTable[$1].name));
-						//funkcja bez parametrów więc incsp = 4
-						writeToOutput(string("\tincsp.i #4"));
-					}
-					else if(SymbolTable[funCalled].token == PROC)
-					{
-						yyerror("Nie można pobrać wyniku bo procedura go nie zwraca");
+						yyerror("Wywołanie funkcji przyjmującej parametry bez parametrów");
 						YYERROR;
 					}
-					$$ = funCalled;
+					var = insertTempSymbol(SymbolTable[var].type);
+					writeToOutput(string("\tpush.i #" + SymbolTable[var].address));
+					writeToOutput(string("\tcall.i #" + SymbolTable[$1].name));
+					writeToOutput(string("\tincsp.i #4"));
 				}
+				else if(SymbolTable[var].token == PROC)
+				{
+					yyerror("Nie można pobrać wyniku bo procedura go nie zwraca");
+					YYERROR;
+				}
+				$$ = var;
+			}
 	| ID '(' expression_list ')'
-			{ 	//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
-					//USUŃ Z tmpArgParamVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA
-					//GENERUJ CALL I INCSP
+			{
 				string name = SymbolTable[$1].name;
 				int index = lookupForFunction(name);
 				if(index == -1)
@@ -588,34 +553,33 @@ factor:
 				}
 				if(SymbolTable[index].token == FUN)
 				{
-					if(tmpArgParamVector.size()<SymbolTable[index].parameters.size())
+					if(argParamVectorHelper.size() < SymbolTable[index].parameters.size())
 					{
 						yyerror("Nieprawidłowa liczba parametrów.");
 						YYERROR;
 					}
-					// zmienna na rozmiar wrzuconych na stos referencji
+
 					int incspCount = 0;
-					//iterator po argumentach
+					
 					list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
-					int startPoint = tmpArgParamVector.size() - SymbolTable[index].parameters.size();
-					// przejdź po argumentach
-					for(int i=startPoint;i<tmpArgParamVector.size();i++)
+					int startPoint = argParamVectorHelper.size() - SymbolTable[index].parameters.size();
+					
+					for(int i=startPoint;i<argParamVectorHelper.size();i++)
 					{
-						int id = tmpArgParamVector[i];
-						// typ argumentu procedury/funkcji
+						int id = argParamVectorHelper[i];
+					
 						int argumentType = (*it).first;
 						if(argumentType==ARRAY) argumentType = (*it).second.argType;
-						// jeśli przekazujemy NUM to stwórz nowy obiekt w tablicy
-							if(SymbolTable[tmpArgParamVector[i]].token==NUM)
+						
+							if(SymbolTable[argParamVectorHelper[i]].token==NUM)
 							{
-								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, tmpArgParamVector[i], true);
+								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
 								id = numVar;
 							}
-							// typ przekazywany
+
 							int passedType = SymbolTable[id].type;
-							// typ argumentu funkcji i typ wartosci przekazywanej są różne (INT i REAL) - konwersja
+							
 							if(argumentType!=passedType)
 							{
 								int tempVar = insertTempSymbol(argumentType);
@@ -623,25 +587,25 @@ factor:
 								id = tempVar;
 							}
 							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
-							incspCount+=4; // zwieksz adres parametrów
+							incspCount += 4;
 							it++;
 						}
-						// usun z wektora argumenty
-						int size = tmpArgParamVector.size();
+
+						int size = argParamVectorHelper.size();
 						for(int i = startPoint;i<size;i++)
 						{
-							tmpArgParamVector.pop_back();
+							argParamVectorHelper.pop_back();
 						}
-						// zmienna na wartość zwracaną
+						
 						int id = insertTempSymbol(SymbolTable[index].type);
 						writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
-						incspCount += 4;	// zwiększ rozmiar
+						incspCount += 4;
 						$$ = id;
-						// generuj call
+
 						writeToOutputByToken(CALL, index,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
-						// generuj incsp
+						
 						int incspNum = insertNum(helper.str(),INTEGER);
 						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
 					}
@@ -663,23 +627,19 @@ factor:
 			}
 	| NOT factor
 			{	
-			//RÓB LABELE JAK 0 TO SKACZ JAK NIE TO TEŻ SKACZ ...
 				int labelFactorEqualZero = insertLabel();
 				int zeroId = insertNum("0",INTEGER);
-				//jeq jeżeli factor == 0 skacz do miejsca w którym ustawimy wartość na 1
 				writeToOutputByToken(EQ,labelFactorEqualZero, true, $2, true,  zeroId, true);
-				//jeżeli factor był inny niż 0 to zapisz 0 to zmiennej jak boło to samo to nie wykona bo przeskoczył
+
 				int varWithNotResult = insertTempSymbol(INTEGER);
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, zeroId, true);
-				//jump na koniec
+				
 				int labelFinishNOT = insertLabel();
 				writeToOutputByToken(JUMP, labelFinishNOT, true, -1, true, -1, true);
-				//miejsce w którym wpisujemy 1 (bo factor był 0)
 				writeToOutputByToken(LABEL, labelFactorEqualZero, true, -1, true, -1, true);
+
 				int num1 = insertNum("1",INTEGER);
-				//jeżeli factor był 0 to zapisz 1
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, num1, true);
-				//label kończący NOT'a
 				writeToOutputByToken(LABEL, labelFinishNOT, true, -1, true, -1, true);
 				$$ = varWithNotResult;
 			}
