@@ -9,7 +9,7 @@
 #include <iostream>
 #include <utility>
 #include <list>
-#include "inc.h"
+#include "symbol.h"
 
 using namespace std;
 

@@ -1,6 +1,6 @@
 #include <iomanip>
 #include "global.h"
-#include "inc.h"
+#include "symbol.h"
 #include "parser.h"
 
 using namespace std;
