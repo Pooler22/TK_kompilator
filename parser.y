@@ -104,8 +104,8 @@ type:
 			{
 				$$ = ARRAY;
 				typeArrayElement = $9;
-				array_range.start = $3;
-				array_range.stop = $6;
+				array_range.startId = $3;
+				array_range.stopId = $6;
 				array_range.startVal = atoi(SymbolTable[$3].name.c_str());
 				array_range.stopVal = atoi(SymbolTable[$6].name.c_str());
 				array_range.argType = $9;
@@ -202,7 +202,7 @@ parameter_list:
 					{
 						SymbolTable[element].token = ARRAY;
 						SymbolTable[element].type = typeArrayElement;
-						SymbolTable[element].array = array_range;
+						SymbolTable[element].arrayInfo = array_range;
 					}
 					else
 					{
@@ -222,7 +222,7 @@ parameter_list:
 					{
 						SymbolTable[element].token = ARRAY;
 						SymbolTable[element].type = typeArrayElement;
-						SymbolTable[element].array = array_range;
+						SymbolTable[element].arrayInfo = array_range;
 					}
 					else
 					{
@@ -259,7 +259,7 @@ statement:
 	| IF expression
 	 		{	
 				//ZRÓB LABEL $2 SPRAWDŹ CZY expression == 0 JAK NIE SKACZ
-				int firstLabel = addLabel();
+				int firstLabel = insertLabel();
 				int newNumInST = insertNum("0",INTEGER);
 				//jump dla niespełnionego warunku (expression=0), czy $2(expression) jest równe newNumInST czyli(0)
 				writeToOutputByToken(_EQ, firstLabel, true, $2, true, newNumInST, true);
@@ -268,7 +268,7 @@ statement:
 		THEN statement
 		 	{	
 				//RÓB LABEL2 $5 RÓB JUMPA DO $5, RÓB LABEL $2
-				int secondLabel = addLabel();
+				int secondLabel = insertLabel();
 				$5 = secondLabel;
 				writeToOutputByToken(_JUMP, secondLabel, true, -1, true, -1, true);
 				writeToOutputByToken(_LABEL, $2, true, -1, true, -1, true);
@@ -280,8 +280,8 @@ statement:
 	| WHILE
 			{	
 				//RÓB START $1 I STOP SS->$2 LABEL, WYPISZ STARTLABEL
-				int stopLabel = addLabel();
-				int startLabel = addLabel();
+				int stopLabel = insertLabel();
+				int startLabel = insertLabel();
 				$1 = startLabel;
 				//Wstawia nowy token pod $2, kolejne poniżej będą przesunięte $2 --> $3
 				$$ = stopLabel;
@@ -311,13 +311,13 @@ variable:
 				//jak real zmien na int
 				if(SymbolTable[$3].type == REAL)
 				{
-					int convertedVal = addTempSymbol(INTEGER);
+					int convertedVal = insertTempSymbol(INTEGER);
 					writeToOutputByToken(_REALTOINT, convertedVal, true, $3, true, -1, true);
 					$3 = convertedVal;
 				}
 				// wyciagnij indeks array w tablicy symboli i jej poczatkowy indeks
-				int startIndex = SymbolTable[$1].array.start;
-				int realIndex = addTempSymbol(INTEGER); //zmienna na $3 startowy rzeczywisty
+				int startIndex = SymbolTable[$1].arrayInfo.startId;
+				int realIndex = insertTempSymbol(INTEGER); //zmienna na $3 startowy rzeczywisty
 				writeToOutputByToken(_MINUS, realIndex, true, $3, true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
 				//dodaj numy jak nie ma
 				int arrayElementSize = 0;
@@ -331,7 +331,7 @@ variable:
 				}
 				//element * pozycja
 				writeToOutputByToken(_MUL, realIndex, true, realIndex, true, arrayElementSize, true);
-				int varWithAddresOfArrayElement = addTempSymbol(INTEGER);
+				int varWithAddresOfArrayElement = insertTempSymbol(INTEGER);
 				//adres początku tablicy + adres elementu w tablicy i mamy w efekcie adres z wartością w tablicy
 				writeToOutputByToken(_PLUS, varWithAddresOfArrayElement, true, $1, false, realIndex, true);
 				//ustaw, że jest to adres referentychny bo nie wskazuje na wartość lecz na wskaźnik pod którym jest wartość adresu, ustawienei typu na int/real
@@ -422,7 +422,7 @@ procedure_statement:
 							if(SymbolTable[argsVector[i]].token == NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
-								int numVar = addTempSymbol(argumentType);
+								int numVar = insertTempSymbol(argumentType);
 								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argsVector[i], true);
 								id = numVar;
 							}
@@ -430,7 +430,7 @@ procedure_statement:
 							int passedType = SymbolTable[id].type;
 							// typ argumentu funkcji i typ wartosci przekazywanej są różne (INT i REAL) - konwersja
 							if(argumentType != passedType){
-								int tempVar = addTempSymbol(argumentType);
+								int tempVar = insertTempSymbol(argumentType);
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
@@ -447,7 +447,7 @@ procedure_statement:
 						if(SymbolTable[index].token==FUN)
 						{
 							// zmienna na wartość zwracaną
-							int id = addTempSymbol(SymbolTable[index].type);
+							int id = insertTempSymbol(SymbolTable[index].type);
 							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
 							incspCount+=4;	// zwiększ rozmiar
 							$$ = id;
@@ -489,16 +489,16 @@ expression:
 	| simple_expression RELOP simple_expression
 			{
 			//GENERUJE LABELE I SKACZE W ZALEŻNOŚCI CZY SPEŁNIONY WARUNEK ZWRACA RESULTVAR
-			int newLabelPass = addLabel();
+			int newLabelPass = insertLabel();
 			//skok jeżeli warunek spełniony
 			writeToOutputByToken($2, newLabelPass, true, $1, true, $3, true);
 			//wynik operacji RELOP czyli 0 lub 1
-			int resultVar = addTempSymbol(INTEGER);
+			int resultVar = insertTempSymbol(INTEGER);
 			int badVal = insertNum("0",INTEGER);
 			//ustawia resultVar na 0 (warunek nie spełniony, nie przeskoczyliśmy)
 			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, badVal, true);
 			//label ostatni za którym idzie dalsza część programu ten po obu (0 i 1)
-			int newLabelFinish = addLabel();
+			int newLabelFinish = insertLabel();
 			writeToOutputByToken(_JUMP, newLabelFinish, true, -1, true, -1, true);
 			//jeżeli warunek spełniony
 			writeToOutputByToken(_LABEL, newLabelPass, true, -1, true, -1, true);
@@ -521,19 +521,19 @@ simple_expression:
 				else if($1 == _MINUS)
 				{
 					//SUB //odejmie od 0 naszą wartość z term
-					$$ = addTempSymbol(SymbolTable[$2].type);
+					$$ = insertTempSymbol(SymbolTable[$2].type);
 					int tempVar = insertNum("0",SymbolTable[$2].type);
 					writeToOutputByToken($1, $$, true, tempVar, true, $2, true);
 				}
 			}
 	| simple_expression SIGN term
 			{	//GENERUJE OPERACJE + LUB - ZWRACA WYNIK
-				$$ = addTempSymbol(getResultType($1, $3));
+				$$ = insertTempSymbol(getResultType($1, $3));
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
 			}
 	| simple_expression OR term
 			{	//GENERUJE OR ZWRACA WYNIK
-				int tmp = addTempSymbol(INTEGER);
+				int tmp = insertTempSymbol(INTEGER);
 				$$ = tmp;
 				writeToOutputByToken(OR, tmp, true, $1, true, $3, true);
 			}
@@ -543,7 +543,7 @@ term:
 		factor
 	| term MULOP factor //mulop div/mod/*..
 			{
-				$$ = addTempSymbol(getResultType($1, $3));
+				$$ = insertTempSymbol(getResultType($1, $3));
 				writeToOutputByToken($2, $$, true, $1, true, $3, true);
 			}
 	;
@@ -560,7 +560,7 @@ factor:
 							yyerror("Wywołanie funkcji przyjmującej parametry bez parametrów");
 							YYERROR;
 						}
-						funCalled = addTempSymbol(SymbolTable[funCalled].type);//nowa zmienna na wartość którą zwróci funkcja
+						funCalled = insertTempSymbol(SymbolTable[funCalled].type);//nowa zmienna na wartość którą zwróci funkcja
 						writeToOutput(string("\tpush.i #" + SymbolTable[funCalled].address));
 						writeToOutput(string("\tcall.i #" + SymbolTable[$1].name));
 						//funkcja bez parametrów więc incsp = 4
@@ -607,7 +607,7 @@ factor:
 							if(SymbolTable[argsVector[i]].token==NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
-								int numVar = addTempSymbol(argumentType);
+								int numVar = insertTempSymbol(argumentType);
 								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argsVector[i], true);
 								id = numVar;
 							}
@@ -616,7 +616,7 @@ factor:
 							// typ argumentu funkcji i typ wartosci przekazywanej są różne (INT i REAL) - konwersja
 							if(argumentType!=passedType)
 							{
-								int tempVar = addTempSymbol(argumentType);
+								int tempVar = insertTempSymbol(argumentType);
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
@@ -631,7 +631,7 @@ factor:
 							argsVector.pop_back();
 						}
 						// zmienna na wartość zwracaną
-						int id = addTempSymbol(SymbolTable[index].type);
+						int id = insertTempSymbol(SymbolTable[index].type);
 						writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
 						incspCount += 4;	// zwiększ rozmiar
 						$$ = id;
@@ -662,15 +662,15 @@ factor:
 	| NOT factor
 			{	
 			//RÓB LABELE JAK 0 TO SKACZ JAK NIE TO TEŻ SKACZ ...
-				int labelFactorEqualZero = addLabel();
+				int labelFactorEqualZero = insertLabel();
 				int zeroId = insertNum("0",INTEGER);
 				//jeq jeżeli factor == 0 skacz do miejsca w którym ustawimy wartość na 1
 				writeToOutputByToken(_EQ,labelFactorEqualZero, true, $2, true,  zeroId, true);
 				//jeżeli factor był inny niż 0 to zapisz 0 to zmiennej jak boło to samo to nie wykona bo przeskoczył
-				int varWithNotResult = addTempSymbol(INTEGER);
+				int varWithNotResult = insertTempSymbol(INTEGER);
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, zeroId, true);
 				//jump na koniec
-				int labelFinishNOT = addLabel();
+				int labelFinishNOT = insertLabel();
 				writeToOutputByToken(_JUMP, labelFinishNOT, true, -1, true, -1, true);
 				//miejsce w którym wpisujemy 1 (bo factor był 0)
 				writeToOutputByToken(_LABEL, labelFactorEqualZero, true, -1, true, -1, true);

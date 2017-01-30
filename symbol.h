@@ -10,24 +10,23 @@ using namespace std;
 
 class ArrayInfo{
 public:
-	int start;//id w tablicy symboli
-	int stop;
-	int startVal;//wartość
+	int startId;
+	int stopId;
+	int startVal;
 	int stopVal;
 	int argType;
 };
 
 class Symbol{
 public:
-	bool isReference;	// czy jest referencją	domyślnie nie jest
-	bool isGlobal;		// zakres true-globalny, false - lokalny
-	int token;		 	//typ tokenu
-	int type;		 	//rodzaj wartości int/real
-	int address;	 	//adres - offset który został przydzielony
-	int returnType;		// typ zwracany - funkcja
-	string name;	 	//nazwa lub numer - dla liczb
-	ArrayInfo array;	// dane tablicy// dla tablic
-	list<pair<int,ArrayInfo> > parameters; // typy kolejnych parametrów - funkcja/procedura
+	bool isReference;
+	bool isGlobal;
+	int token;							 	// typ tokenu: FUN, PROC ...
+	int type;							 	// rodzaj wartości INTEGER/REAL
+	int address;						 	// adres - offset który został przydzielony
+	string name;						 	// nazwa lub numer dla liczb: lab0
+	ArrayInfo arrayInfo;					// dane tablicy
+	list<pair<int, ArrayInfo>> parameters;	// typy kolejnych parametrów - funkcja/procedura
 };
 
 #endif

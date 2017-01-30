@@ -1,6 +1,6 @@
 cc = g++
 flags = -pedantic
-objects = emitter.o lexer.o main.o parser.o symbol.o
+objects = emitter.o error.o  lexer.o main.o parser.o symbol.o
 
 comp: $(objects)
 	$(cc)  $(flags) $(objects) -o comp -lfl
@@ -12,6 +12,8 @@ emitter.o: emitter.c parser.h global.h symbol.h
 	$(cc) $(flags) -c emitter.c -o emitter.o
 lexer.o: lexer.c global.h
 	$(cc) $(flags) -c lexer.c -o lexer.o
+error.o: error.c global.h
+	$(cc) $(flags) -c error.c -o error.o
 main.o: main.c global.h
 	$(cc) $(flags) -c main.c -o main.o
 parser.o: parser.c parser.h global.h

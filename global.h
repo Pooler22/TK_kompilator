@@ -19,34 +19,40 @@ extern vector<Symbol> SymbolTable;
 extern ofstream outputStream;//stream do zapisu
 extern FILE* yyin;
 
-void writeStrToOutput(string str);
+//error.c
+void checkSymbolExist(int id);
+
+//symbol.c
+int insertTempSymbol(int type);
+int insertLabel();
 void addVariable(int index, int type);
 void addArray(int index, int type,int helpVarArray,ArrayInfo array_range);
-void checkSymbolExist(int id);
+int getSymbolAddress(string symbolName="")	;//oblicza index w którym bedzie nowa zmienna np 12 dla global, -24 dla local
+int getSymbolSize(Symbol e);
+string getDescription(int tokenId);
+void clearLocalSymbols();
+int insert (string s, int token, int type);
+int insertNum(string, int);
+int lookup(string s);
+int lookupIfExistAndInsert(string s, int token, int type);
+int lookupIfExist(string s);
+int lookupForFunction(string s);
+void printSymbolTable();
+
+//emitter.c
+void writeStrToOutput(string str);
 void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int leftVar, bool isValueLeft, int rightVar, bool isValueRight);
 void writeToOutputExt(string str0, string str1, string str2, string str3, string str4);
 void writeToOutput(string s);//zapisuje bezpośrednio do pliku
 void yyerror(char const* s);//funkcja błędu parsera
-void printSymbolTable(); //drukuje tablicę symboli
-void clearLocalSymbols();
 void writeToFile();
 void writeIntToOutput(int);
 
 int getToken(string);//pobiera przydzielony token na podstawie tekstu operacji np >= otrzyma token GE
 int yylex();//odpala lekser
 int yyparse();//odpala parser
-int lookupIfExist(string s);//sprawdza czy dane id jest już w tablicy w zakresie likalnym lub globalnym
-int lookupIfExistAndInsert(string s, int token, int type);
-int addTempSymbol(int type);//tworzy dodatkową zmienną dla obliczeń to "t" z zajęć
-int insert (string s, int token, int type);//wrzuca do TS
 int yylex_destroy();//zabija parser
 int getResultType(int a, int b);//generuje typ wyniku dla 2 operandów
-int getSymbolAddress(string symbolName="");//oblicza index w którym bedzie nowa zmienna np 12 dla global, -24 dla local
-int getSymbolSize(Symbol e);//podaje rozmiar Symbolu
-int addLabel();//tworzy kolejny label do skoku
-int lookup(string s);
-int insertNum(string, int);//wstawia num do ST jak nie istnieje
-int lookupForFunction(string s);
 
 string getTokenString(int tokenID);//dla printSymTable
 

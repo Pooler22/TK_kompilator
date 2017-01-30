@@ -51,11 +51,11 @@ void castToSameType(int &var1, bool isValueVar1, int &var2, bool isValueVar2 ) {
 
 	if (leftType != rightType) {
 		if (leftType == INTEGER && rightType == REAL) {
-			int newLeftVar = addTempSymbol(REAL);
+			int newLeftVar = insertTempSymbol(REAL);
 			writeToOutputByToken(_INTTOREAL, newLeftVar, isValueVar1, var1, isValueVar1, -1, true);
 			var1 = newLeftVar;
 		} else if (leftType == REAL && rightType == INTEGER) {
-			int newRightVar = addTempSymbol(REAL);
+			int newRightVar = insertTempSymbol(REAL);
 			writeToOutputByToken(_INTTOREAL, newRightVar, isValueVar2, var2, isValueVar2, -1, true);
 			var2 = newRightVar;
 		} else {
