@@ -44,7 +44,6 @@ int getToken(string strValIn) {
 	return 0;
 }
 
-//konwertuje 2 zmienne na ten sam typ (wyższy) przekazuje dane przez referencję
 void castToSameType(int &var1, bool isValueVar1, int &var2, bool isValueVar2 ) {
 	int leftType = getSymbolType( var1, isValueVar1 );
 	int rightType = getSymbolType( var2, isValueVar2 );
@@ -64,7 +63,6 @@ void castToSameType(int &var1, bool isValueVar1, int &var2, bool isValueVar2 ) {
 	}
 }
 
-//dla := ustawia identyczny typ
 bool castToSameTypeForAssign(int resultVar, bool isValueResult, int rightVar, bool isValueRight) {
 	int resultType = getSymbolType(resultVar, isValueResult);
 	int rightType = getSymbolType(rightVar, isValueRight);
@@ -97,7 +95,6 @@ void writeVariableExt(int index){
 	ss << SymbolTable[index].address;
 }
 
-//wypisuje pojedyńczą zmienną dostosowywuje znak referencji, wartości, BP
 void writeVariable(int index, bool isValue) {
 	//jeżeli do wypisania jest liczba poprzedza ją znakiem # i wypisuje
 	if (SymbolTable[index].token == NUM) {
@@ -132,7 +129,6 @@ string formatVariableExt(int index){
 	return ss + to_string(SymbolTable[index].address);
 }
 
-
 string formatVariable(int index, bool isValue) {
 	string ss = "";
 	//jeżeli do wypisania jest liczba poprzedza ją znakiem # i wypisuje
@@ -156,7 +152,6 @@ string formatVariable(int index, bool isValue) {
 	return ss;
 }
 
-//generuje kod dla prawie wszystkiego
 void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int leftVar, bool isValueLeft, int rightVar, bool isValueRight) {
 	string operationType;
 
@@ -222,10 +217,10 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		ss << "\n        call.i  #" << SymbolTable[resultVar].name;
 	} 
 	else if (operand == _READ) {
-		ss << "\n        read " << operationType << formatVariable(resultVar, isValueResult);
+		ss << "\n        read" << operationType << formatVariable(resultVar, isValueResult);
 	} 
 	else if (operand == _WRITE) {
-		ss << "\n        write " << operationType << formatVariable(resultVar, isValueResult);
+		ss << "\n        write" << operationType << formatVariable(resultVar, isValueResult);
 	} 
 	else if (operand == _REALTOINT) {
 		ss << "\n        realtoint.r " << formatVariable(leftVar, isValueLeft) << "," << formatVariable(resultVar, isValueResult);
@@ -275,7 +270,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		ss << operationType << "   " << formatVariable(leftVar, isValueLeft) << "," << formatVariable(rightVar, isValueRight) << "," << formatVariable(resultVar, isValueResult);
 	} 
 	else if (operand == _INTTOREAL) {
-		writeToOutputExt("","inttoreal.i", formatVariable(leftVar, isValueResult), ",", formatVariable(resultVar, isValueResult));
+		writeToOutputExt("","inttoreal.i " + formatVariable(leftVar, isValueResult) + "," + formatVariable(resultVar, isValueResult) ,"", "", "");
 	}
 }
 

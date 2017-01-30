@@ -42,28 +42,9 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	
-	Symbol read;
-	read.name = ("read");
-	read.isGlobal = true;
-	read.isReference = false;
-	read.token = PROC;
-	SymbolTable.push_back(read);
+	initSymbolTable();
 
-	Symbol write;
-	write.name = ("write");
-	write.isGlobal = true;
-	write.isReference = false;
-	write.token = PROC;
-	SymbolTable.push_back(write);
-
-	Symbol lab0;
-	lab0.name = ("lab0");
-	lab0.isGlobal = true;
-	lab0.isReference = false;
-	lab0.token = _LABEL;
-	SymbolTable.push_back(lab0);
-
-	streamString << "        " << "jump.i  #" << lab0.name << "                   ;jump.i  lab0";
+	streamString << "        jump.i  #lab0                   ;jump.i  lab0";
 	outputStream.write(streamString.str().c_str(), streamString.str().size());
 
 	yyparse();

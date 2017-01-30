@@ -11,71 +11,72 @@
 #include <list>
 #include "symbol.h"
 
+#define _LABEL 		301
+#define _WRITE 		302
+#define _READ 		303
+#define _PUSH 		304
+#define _INCSP 		305
+#define _PLUS 		306
+#define _MINUS 		307
+#define _MUL 		308
+#define _DIV 		309
+#define _MOD 		310
+#define _AND 		311
+#define _INTTOREAL 	312
+#define _REALTOINT 	313
+#define _CALL 		214
+#define _RETURN 	215
+#define _EQ 		216
+#define _NE 		217
+#define _GE 		218
+#define _LE 		219
+#define _G 			220
+#define _L 			221
+#define _JUMP 		222
+
 using namespace std;
 
 extern bool isGlobal;
 extern int lineno;
-extern vector<Symbol> SymbolTable;
-extern ofstream outputStream;//stream do zapisu
+extern ofstream outputStream;
 extern FILE* yyin;
+extern vector<Symbol> SymbolTable;
 
 //error.c
-void checkSymbolExist(int id);
+void checkSymbolExist(int);
 
 //symbol.c
-int insertTempSymbol(int type);
+int insertTempSymbol(int);
 int insertLabel();
-void addVariable(int index, int type);
-void addArray(int index, int type,int helpVarArray,ArrayInfo array_range);
-int getSymbolAddress(string symbolName="")	;//oblicza index w którym bedzie nowa zmienna np 12 dla global, -24 dla local
-int getSymbolSize(Symbol e);
-string getDescription(int tokenId);
+void addVariable(int, int);
+void addArray(int, int, int, ArrayInfo);
+int getSymbolAddress(string);
+int getSymbolSize(Symbol);
+string tokenToString(int);
 void clearLocalSymbols();
-int insert (string s, int token, int type);
+void initSymbolTable();
+int insert (string, int, int);
 int insertNum(string, int);
-int lookup(string s);
-int lookupIfExistAndInsert(string s, int token, int type);
-int lookupIfExist(string s);
-int lookupForFunction(string s);
+int lookup(string);
+int lookupIfExistAndInsert(string, int, int);
+int lookupIfExist(string);
+int lookupForFunction(string);
 void printSymbolTable();
 
 //emitter.c
-void writeStrToOutput(string str);
-void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int leftVar, bool isValueLeft, int rightVar, bool isValueRight);
-void writeToOutputExt(string str0, string str1, string str2, string str3, string str4);
-void writeToOutput(string s);//zapisuje bezpośrednio do pliku
-void yyerror(char const* s);//funkcja błędu parsera
-void writeToFile();
+int getResultType(int, int);
+int getToken(string);
+void writeToOutputByToken(int, int, bool, int, bool, int, bool);
+void writeToOutput(string);
+void writeStrToOutput(string);
 void writeIntToOutput(int);
+void writeToFile();
+void writeToOutputExt(string, string, string, string, string);
 
-int getToken(string);//pobiera przydzielony token na podstawie tekstu operacji np >= otrzyma token GE
-int yylex();//odpala lekser
-int yyparse();//odpala parser
-int yylex_destroy();//zabija parser
-int getResultType(int a, int b);//generuje typ wyniku dla 2 operandów
+//lexer
+int yylex();
+int yylex_destroy();
 
-string getTokenString(int tokenID);//dla printSymTable
-
-//tokeny któe mogą wystąpić
-#define _LABEL 1257
-#define _WRITE 1259
-#define _READ 1260
-#define _PUSH 1261
-#define _INCSP 1262
-#define _PLUS 1264
-#define _MINUS 1265
-#define _MUL 1266
-#define _DIV 1267
-#define _MOD 1268
-#define _AND 1269
-#define _INTTOREAL 1270
-#define _REALTOINT 1271
-#define _CALL 1272
-#define _RETURN 1274
-#define _EQ 1275
-#define _NE 1276
-#define _GE 1277
-#define _LE 1278
-#define _G 1279
-#define _L 1280
-#define _JUMP 1281
+//parser
+int yyparse();
+void yyerror(char const* s);
