@@ -127,7 +127,7 @@ subprogram_declaration:
 			{ 
 				//end of fun/proc
 				writeToOutputExt("","leave","",";leave ","");
-				writeToOutputByToken(_RETURN,-1,true,-1,true,-1,true);
+				writeToOutputByToken(RETURN,-1,true,-1,true,-1,true);
 				printSymbolTable();
 				//reset
 				clearLocalSymbols();
@@ -262,7 +262,7 @@ statement:
 				int firstLabel = insertLabel();
 				int newNumInST = insertNum("0",INTEGER);
 				//jump dla niespełnionego warunku (expression=0), czy $2(expression) jest równe newNumInST czyli(0)
-				writeToOutputByToken(_EQ, firstLabel, true, $2, true, newNumInST, true);
+				writeToOutputByToken(EQ, firstLabel, true, $2, true, newNumInST, true);
 				$2 = firstLabel;
 			}
 		THEN statement
@@ -270,12 +270,12 @@ statement:
 				//RÓB LABEL2 $5 RÓB JUMPA DO $5, RÓB LABEL $2
 				int secondLabel = insertLabel();
 				$5 = secondLabel;
-				writeToOutputByToken(_JUMP, secondLabel, true, -1, true, -1, true);
-				writeToOutputByToken(_LABEL, $2, true, -1, true, -1, true);
+				writeToOutputByToken(JUMP, secondLabel, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, $2, true, -1, true, -1, true);
 			}
 		ELSE statement
 			{
-				writeToOutputByToken(_LABEL, $5, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, $5, true, -1, true, -1, true);
 			}
 	| WHILE
 			{	
@@ -285,17 +285,17 @@ statement:
 				$1 = startLabel;
 				//Wstawia nowy token pod $2, kolejne poniżej będą przesunięte $2 --> $3
 				$$ = stopLabel;
-				writeToOutputByToken(_LABEL, startLabel, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, startLabel, true, -1, true, -1, true);
 			}
 		expression DO
 			{	//JAK WARUNEK NIE SPEŁNIONY UCIEKAJ DO STOP
 				int v = insertNum("0",INTEGER);
-				writeToOutputByToken(_EQ, $2, true, $3, true, v, true);
+				writeToOutputByToken(EQ, $2, true, $3, true, v, true);
 			}
 		statement
 			{	//RÓB JUMP DO START I LABEL STOPU
-				writeToOutputByToken(_JUMP, $1, true, -1, true, -1, true);
-				writeToOutputByToken(_LABEL, $2, true, -1, true, -1, true);
+				writeToOutputByToken(JUMP, $1, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, $2, true, -1, true, -1, true);
 			}
 	;
 
@@ -312,13 +312,13 @@ variable:
 				if(SymbolTable[$3].type == REAL)
 				{
 					int convertedVal = insertTempSymbol(INTEGER);
-					writeToOutputByToken(_REALTOINT, convertedVal, true, $3, true, -1, true);
+					writeToOutputByToken(REALTOINT, convertedVal, true, $3, true, -1, true);
 					$3 = convertedVal;
 				}
 				// wyciagnij indeks array w tablicy symboli i jej poczatkowy indeks
 				int startIndex = SymbolTable[$1].arrayInfo.startId;
 				int realIndex = insertTempSymbol(INTEGER); //zmienna na $3 startowy rzeczywisty
-				writeToOutputByToken(_MINUS, realIndex, true, $3, true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
+				writeToOutputByToken(MINUS, realIndex, true, $3, true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
 				//dodaj numy jak nie ma
 				int arrayElementSize = 0;
 				if(SymbolTable[$1].type == INTEGER)
@@ -330,10 +330,10 @@ variable:
 					arrayElementSize = insertNum("8",INTEGER);
 				}
 				//element * pozycja
-				writeToOutputByToken(_MUL, realIndex, true, realIndex, true, arrayElementSize, true);
+				writeToOutputByToken(MUL, realIndex, true, realIndex, true, arrayElementSize, true);
 				int varWithAddresOfArrayElement = insertTempSymbol(INTEGER);
 				//adres początku tablicy + adres elementu w tablicy i mamy w efekcie adres z wartością w tablicy
-				writeToOutputByToken(_PLUS, varWithAddresOfArrayElement, true, $1, false, realIndex, true);
+				writeToOutputByToken(PLUS, varWithAddresOfArrayElement, true, $1, false, realIndex, true);
 				//ustaw, że jest to adres referentychny bo nie wskazuje na wartość lecz na wskaźnik pod którym jest wartość adresu, ustawienei typu na int/real
 				SymbolTable[varWithAddresOfArrayElement].isReference = true;
 				SymbolTable[varWithAddresOfArrayElement].type = SymbolTable[$1].type;
@@ -378,11 +378,11 @@ procedure_statement:
 					{
 						if($1 == r)
 						{
-							 writeToOutputByToken(_READ, element,true, -1, true, -1, true );
+							 writeToOutputByToken(READ, element,true, -1, true, -1, true );
 						}
 						if($1 == w)
 						{
-							 writeToOutputByToken(_WRITE,element,true, -1, true, -1, true );
+							 writeToOutputByToken(WRITE,element,true, -1, true, -1, true );
 						}
 					}
 				}
@@ -434,7 +434,7 @@ procedure_statement:
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
-							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 							incspCount+=4; // zwieksz adres parametrów
 							it++;
 						}
@@ -448,17 +448,17 @@ procedure_statement:
 						{
 							// zmienna na wartość zwracaną
 							int id = insertTempSymbol(SymbolTable[index].type);
-							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 							incspCount+=4;	// zwiększ rozmiar
 							$$ = id;
 						}
 						// generuj call
-						writeToOutputByToken(_CALL, index,true,-1,true,-1,true);
+						writeToOutputByToken(CALL, index,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
 						//generuj incsp
 						int incspNum = insertNum(helper.str(),INTEGER);
-						writeToOutputByToken(_INCSP,incspNum,true,-1,true,-1,true);
+						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else
 					{
@@ -499,13 +499,13 @@ expression:
 			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, badVal, true);
 			//label ostatni za którym idzie dalsza część programu ten po obu (0 i 1)
 			int newLabelFinish = insertLabel();
-			writeToOutputByToken(_JUMP, newLabelFinish, true, -1, true, -1, true);
+			writeToOutputByToken(JUMP, newLabelFinish, true, -1, true, -1, true);
 			//jeżeli warunek spełniony
-			writeToOutputByToken(_LABEL, newLabelPass, true, -1, true, -1, true);
+			writeToOutputByToken(LABEL, newLabelPass, true, -1, true, -1, true);
 			int goodVal = insertNum("1",INTEGER);
 			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, goodVal, true);//ustawia resultVar na 1 (warunek spełniony)
 			//Label za całym wyrażeniem
-			writeToOutputByToken(_LABEL, newLabelFinish, true, -1, true, -1, true);
+			writeToOutputByToken(LABEL, newLabelFinish, true, -1, true, -1, true);
 			$$ = resultVar;
 		}
 	;
@@ -514,11 +514,11 @@ simple_expression:
 		term
 	| SIGN term
 			{
-				if($1 == _PLUS)
+				if($1 == PLUS)
 				{
 					 $$ = $2;
 				}
-				else if($1 == _MINUS)
+				else if($1 == MINUS)
 				{
 					//SUB //odejmie od 0 naszą wartość z term
 					$$ = insertTempSymbol(SymbolTable[$2].type);
@@ -620,7 +620,7 @@ factor:
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
-							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 							incspCount+=4; // zwieksz adres parametrów
 							it++;
 						}
@@ -632,16 +632,16 @@ factor:
 						}
 						// zmienna na wartość zwracaną
 						int id = insertTempSymbol(SymbolTable[index].type);
-						writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+						writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 						incspCount += 4;	// zwiększ rozmiar
 						$$ = id;
 						// generuj call
-						writeToOutputByToken(_CALL, index,true,-1,true,-1,true);
+						writeToOutputByToken(CALL, index,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
 						// generuj incsp
 						int incspNum = insertNum(helper.str(),INTEGER);
-						writeToOutputByToken(_INCSP,incspNum,true,-1,true,-1,true);
+						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else if(SymbolTable[index].token==PROC)
 					{
@@ -665,20 +665,20 @@ factor:
 				int labelFactorEqualZero = insertLabel();
 				int zeroId = insertNum("0",INTEGER);
 				//jeq jeżeli factor == 0 skacz do miejsca w którym ustawimy wartość na 1
-				writeToOutputByToken(_EQ,labelFactorEqualZero, true, $2, true,  zeroId, true);
+				writeToOutputByToken(EQ,labelFactorEqualZero, true, $2, true,  zeroId, true);
 				//jeżeli factor był inny niż 0 to zapisz 0 to zmiennej jak boło to samo to nie wykona bo przeskoczył
 				int varWithNotResult = insertTempSymbol(INTEGER);
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, zeroId, true);
 				//jump na koniec
 				int labelFinishNOT = insertLabel();
-				writeToOutputByToken(_JUMP, labelFinishNOT, true, -1, true, -1, true);
+				writeToOutputByToken(JUMP, labelFinishNOT, true, -1, true, -1, true);
 				//miejsce w którym wpisujemy 1 (bo factor był 0)
-				writeToOutputByToken(_LABEL, labelFactorEqualZero, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, labelFactorEqualZero, true, -1, true, -1, true);
 				int num1 = insertNum("1",INTEGER);
 				//jeżeli factor był 0 to zapisz 1
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, num1, true);
 				//label kończący NOT'a
-				writeToOutputByToken(_LABEL, labelFinishNOT, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, labelFinishNOT, true, -1, true, -1, true);
 				$$ = varWithNotResult;
 			}
 	;

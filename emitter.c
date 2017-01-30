@@ -29,18 +29,18 @@ int getSymbolType(int index, bool isValue) {
 
 int getToken(string strValIn) {
 	string strVal = strValIn;
-	if (strVal.compare("+") == 0) return _PLUS;
-	if (strVal.compare("-") == 0) return _MINUS;
-	if (strVal.compare("*") == 0) return _MUL;
-	if (strVal.compare("div") == 0 || strVal.compare("/") == 0) return _DIV;
-	if (strVal.compare("mod") == 0) return _MOD;
-	if (strVal.compare("and") == 0) return _AND;
-	if (strVal.compare("=") == 0) return _EQ;
-	if (strVal.compare(">=") == 0) return _GE;
-	if (strVal.compare("<=") == 0) return _LE;
-	if (strVal.compare("<>") == 0) return _NE;
-	if (strVal.compare(">") == 0) return _G;
-	if (strVal.compare("<") == 0) return _L;
+	if (strVal.compare("+") == 0) return PLUS;
+	if (strVal.compare("-") == 0) return MINUS;
+	if (strVal.compare("*") == 0) return MUL;
+	if (strVal.compare("div") == 0 || strVal.compare("/") == 0) return DIV;
+	if (strVal.compare("mod") == 0) return MOD;
+	if (strVal.compare("and") == 0) return AND;
+	if (strVal.compare("=") == 0) return EQ;
+	if (strVal.compare(">=") == 0) return GE;
+	if (strVal.compare("<=") == 0) return LE;
+	if (strVal.compare("<>") == 0) return NE;
+	if (strVal.compare(">") == 0) return G;
+	if (strVal.compare("<") == 0) return L;
 	return 0;
 }
 
@@ -51,11 +51,11 @@ void castToSameType(int &var1, bool isValueVar1, int &var2, bool isValueVar2 ) {
 	if (leftType != rightType) {
 		if (leftType == INTEGER && rightType == REAL) {
 			int newLeftVar = insertTempSymbol(REAL);
-			writeToOutputByToken(_INTTOREAL, newLeftVar, isValueVar1, var1, isValueVar1, -1, true);
+			writeToOutputByToken(INTTOREAL, newLeftVar, isValueVar1, var1, isValueVar1, -1, true);
 			var1 = newLeftVar;
 		} else if (leftType == REAL && rightType == INTEGER) {
 			int newRightVar = insertTempSymbol(REAL);
-			writeToOutputByToken(_INTTOREAL, newRightVar, isValueVar2, var2, isValueVar2, -1, true);
+			writeToOutputByToken(INTTOREAL, newRightVar, isValueVar2, var2, isValueVar2, -1, true);
 			var2 = newRightVar;
 		} else {
 			yyerror("Niezgodnosc typow");
@@ -71,11 +71,11 @@ bool castToSameTypeForAssign(int resultVar, bool isValueResult, int rightVar, bo
 		return false;
 	} else {
 		if (resultType == INTEGER && rightType == REAL) {
-			writeToOutputByToken(_REALTOINT, resultVar, isValueResult, rightVar, isValueRight, -1, true);
+			writeToOutputByToken(REALTOINT, resultVar, isValueResult, rightVar, isValueRight, -1, true);
 			return true;
 		}
 		else if (resultType == REAL && rightType == INTEGER) {
-			writeToOutputByToken(_INTTOREAL, resultVar, isValueResult, rightVar, isValueRight, -1, true);
+			writeToOutputByToken(INTTOREAL, resultVar, isValueResult, rightVar, isValueRight, -1, true);
 			return true;
 		}
 		else {
@@ -164,7 +164,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		}
 	}
 
-	if (operand == _RETURN) {
+	if (operand == RETURN) {
 		writeToOutputExt("","return","",";return","");
 		string res;
 		res = ss.str();
@@ -175,7 +175,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		outputStream.write(res.c_str(), res.size());
 		ss.str(string());
 	} 
-	else if (operand >= _EQ && operand <= _L) {
+	else if (operand >= EQ && operand <= L) {
 		castToSameType(leftVar, isValueLeft, rightVar, isValueRight);
 		if (SymbolTable[leftVar].type == REAL){
 			operationType = ".r ";
@@ -185,12 +185,12 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		}
 		ss << "\n        ";
 		
-		if (operand == _EQ) ss << "je";
-		else if (operand == _NE) ss << "jne";
-		else if (operand == _LE) ss << "jle";
-		else if (operand == _GE) ss << "jge";
-		else if (operand == _G) ss << "jg";
-		else if (operand == _L) ss << "jl";
+		if (operand == EQ) ss << "je";
+		else if (operand == NE) ss << "jne";
+		else if (operand == LE) ss << "jle";
+		else if (operand == GE) ss << "jge";
+		else if (operand == G) ss << "jg";
+		else if (operand == L) ss << "jl";
 		ss << operationType << "   ";
 		writeVariable(leftVar, isValueLeft);
 		ss << ",";
@@ -201,28 +201,28 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		writeToOutput(SymbolTable[resultVar].name+":");
 		writeToOutputExt("","enter.i","??",";enter.i","");
 	} 
-	else if (operand == _LABEL) {
+	else if (operand == LABEL) {
 		ss << "\n" << SymbolTable[resultVar].name << ":";
 	} 
-	else if (operand == _PUSH) {
+	else if (operand == PUSH) {
 		ss << "\n        push.i " << formatVariable(resultVar, isValueResult);
 	} 
-	else if (operand == _INCSP) {
+	else if (operand == INCSP) {
 		ss << "\n        incsp" << operationType << formatVariable(resultVar, isValueResult);
 	} 
-	else if (operand == _JUMP) {
+	else if (operand == JUMP) {
 		ss << "\n        jump.i  #" << SymbolTable[resultVar].name;
 	} 
-	else if (operand == _CALL) {
+	else if (operand == CALL) {
 		ss << "\n        call.i  #" << SymbolTable[resultVar].name;
 	} 
-	else if (operand == _READ) {
+	else if (operand == READ) {
 		ss << "\n        read" << operationType << formatVariable(resultVar, isValueResult);
 	} 
-	else if (operand == _WRITE) {
+	else if (operand == WRITE) {
 		ss << "\n        write" << operationType << formatVariable(resultVar, isValueResult);
 	} 
-	else if (operand == _REALTOINT) {
+	else if (operand == REALTOINT) {
 		ss << "\n        realtoint.r " << formatVariable(leftVar, isValueLeft) << "," << formatVariable(resultVar, isValueResult);
 	} 
 	else if (operand == ASSIGN) {
@@ -233,32 +233,32 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 			ss << "\n        mov" << operationType << "  " << formatVariable(rightVar, isValueRight)  << "," <<formatVariable(resultVar, isValueResult);
 		}
 	}
-	else if (operand == _PLUS || operand == _MINUS) {
+	else if (operand == PLUS || operand == MINUS) {
 		castToSameType(leftVar, isValueLeft, rightVar, isValueRight);
 		ss << "\n        ";
-		if (operand == _MINUS){
+		if (operand == MINUS){
 			ss << "sub" << operationType;
 		}
-		else if (operand == _PLUS){
+		else if (operand == PLUS){
 			ss << "add" << operationType;
 		}
 		ss << formatVariable(leftVar, isValueLeft) << "," << formatVariable(rightVar, isValueRight) << "," <<formatVariable(resultVar, isValueResult);
 	}
-	else if (operand == _MUL || operand == _DIV || operand == _MOD || operand == _AND || operand == OR) {
+	else if (operand == MUL || operand == DIV || operand == MOD || operand == AND || operand == OR) {
 		castToSameType(leftVar, isValueLeft, rightVar, isValueRight);
 		ss << "\n        ";
-		if (operand == _MUL){
+		if (operand == MUL){
             ss << "mul";
         }
-		else if (operand == _DIV) 
+		else if (operand == DIV) 
         {
             ss << "div";
         }
-		else if (operand == _MOD)
+		else if (operand == MOD)
         {
             ss << "mod";
         }
-		else if (operand == _AND)
+		else if (operand == AND)
         {
             ss << "and";
         }
@@ -269,7 +269,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
         
 		ss << operationType << "   " << formatVariable(leftVar, isValueLeft) << "," << formatVariable(rightVar, isValueRight) << "," << formatVariable(resultVar, isValueResult);
 	} 
-	else if (operand == _INTTOREAL) {
+	else if (operand == INTTOREAL) {
 		writeToOutputExt("","inttoreal.i " + formatVariable(leftVar, isValueResult) + "," + formatVariable(resultVar, isValueResult) ,"", "", "");
 	}
 }

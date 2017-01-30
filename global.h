@@ -11,28 +11,28 @@
 #include <list>
 #include "symbol.h"
 
-#define _LABEL 		301
-#define _WRITE 		302
-#define _READ 		303
-#define _PUSH 		304
-#define _INCSP 		305
-#define _PLUS 		306
-#define _MINUS 		307
-#define _MUL 		308
-#define _DIV 		309
-#define _MOD 		310
-#define _AND 		311
-#define _INTTOREAL 	312
-#define _REALTOINT 	313
-#define _CALL 		214
-#define _RETURN 	215
-#define _EQ 		216
-#define _NE 		217
-#define _GE 		218
-#define _LE 		219
-#define _G 			220
-#define _L 			221
-#define _JUMP 		222
+#define WRITE 		301
+#define READ 		302
+#define LABEL 		303
+#define PLUS 		304
+#define MINUS 		305
+#define MUL 		306
+#define DIV 		307
+#define MOD 		308
+#define AND 		309
+#define EQ 			210
+#define NE 			211
+#define GE 			212
+#define LE	 		213
+#define G 			214
+#define L 			215
+#define INTTOREAL 	316
+#define REALTOINT 	317
+#define PUSH 		318
+#define INCSP 		319
+#define CALL 		320
+#define RETURN 		321
+#define JUMP 		322
 
 using namespace std;
 

@@ -38,7 +38,7 @@ int insertTempSymbol(int type) {
 
 int insertLabel() {
 	string name = "lab" + to_string(labelsCount++);
-	int id = insert(name, _LABEL, NONE);
+	int id = insert(name, LABEL, NONE);
 	return id;
 }
 
@@ -74,7 +74,7 @@ void initSymbolTable(){
 	lab0.name = ("lab0");
 	lab0.isGlobal = true;
 	lab0.isReference = false;
-	lab0.token = _LABEL;
+	lab0.token = LABEL;
 	SymbolTable.push_back(lab0);
 }
 
@@ -193,7 +193,7 @@ string tokenToString(int token) {
 			return "procedure";
 		case FUN:
 			return "function";
-		case _LABEL:
+		case LABEL:
 			return "label";
 		case ID:
 			return "id";
@@ -242,7 +242,7 @@ void printSymbolTable() {
 			}
 			else if (e.token == ARRAY) {
 				cout << "variable " << e.name << " array [" << e.arrayInfo.startVal << ".." << e.arrayInfo.stopVal << "] of " << tokenToString(e.type) << " offset=" << e.address << endl;
-			}			else if (e.token == PROC || e.token == FUN || e.token == _LABEL) {
+			}			else if (e.token == PROC || e.token == FUN || e.token == LABEL) {
 				cout << tokenToString(e.token) << " " << e.name << " " << endl;
 			}
 

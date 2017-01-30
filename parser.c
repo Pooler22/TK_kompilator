@@ -1395,7 +1395,7 @@ yyreduce:
     { 
 				//end of fun/proc
 				writeToOutputExt("","leave","",";leave ","");
-				writeToOutputByToken(_RETURN,-1,true,-1,true,-1,true);
+				writeToOutputByToken(RETURN,-1,true,-1,true,-1,true);
 				printSymbolTable();
 				//reset
 				clearLocalSymbols();
@@ -1539,7 +1539,7 @@ yyreduce:
 				int firstLabel = insertLabel();
 				int newNumInST = insertNum("0",INTEGER);
 				//jump dla niespełnionego warunku (expression=0), czy $2(expression) jest równe newNumInST czyli(0)
-				writeToOutputByToken(_EQ, firstLabel, true, (yyvsp[0]), true, newNumInST, true);
+				writeToOutputByToken(EQ, firstLabel, true, (yyvsp[0]), true, newNumInST, true);
 				(yyvsp[0]) = firstLabel;
 			}
 #line 1546 "parser.c" /* yacc.c:1646  */
@@ -1551,8 +1551,8 @@ yyreduce:
 				//RÓB LABEL2 $5 RÓB JUMPA DO $5, RÓB LABEL $2
 				int secondLabel = insertLabel();
 				(yyvsp[0]) = secondLabel;
-				writeToOutputByToken(_JUMP, secondLabel, true, -1, true, -1, true);
-				writeToOutputByToken(_LABEL, (yyvsp[-3]), true, -1, true, -1, true);
+				writeToOutputByToken(JUMP, secondLabel, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, (yyvsp[-3]), true, -1, true, -1, true);
 			}
 #line 1558 "parser.c" /* yacc.c:1646  */
     break;
@@ -1560,7 +1560,7 @@ yyreduce:
   case 39:
 #line 277 "parser.y" /* yacc.c:1646  */
     {
-				writeToOutputByToken(_LABEL, (yyvsp[-3]), true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, (yyvsp[-3]), true, -1, true, -1, true);
 			}
 #line 1566 "parser.c" /* yacc.c:1646  */
     break;
@@ -1574,7 +1574,7 @@ yyreduce:
 				(yyvsp[0]) = startLabel;
 				//Wstawia nowy token pod $2, kolejne poniżej będą przesunięte $2 --> $3
 				(yyval) = stopLabel;
-				writeToOutputByToken(_LABEL, startLabel, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, startLabel, true, -1, true, -1, true);
 			}
 #line 1580 "parser.c" /* yacc.c:1646  */
     break;
@@ -1583,7 +1583,7 @@ yyreduce:
 #line 291 "parser.y" /* yacc.c:1646  */
     {	//JAK WARUNEK NIE SPEŁNIONY UCIEKAJ DO STOP
 				int v = insertNum("0",INTEGER);
-				writeToOutputByToken(_EQ, (yyvsp[-2]), true, (yyvsp[-1]), true, v, true);
+				writeToOutputByToken(EQ, (yyvsp[-2]), true, (yyvsp[-1]), true, v, true);
 			}
 #line 1589 "parser.c" /* yacc.c:1646  */
     break;
@@ -1591,8 +1591,8 @@ yyreduce:
   case 42:
 #line 296 "parser.y" /* yacc.c:1646  */
     {	//RÓB JUMP DO START I LABEL STOPU
-				writeToOutputByToken(_JUMP, (yyvsp[-5]), true, -1, true, -1, true);
-				writeToOutputByToken(_LABEL, (yyvsp[-4]), true, -1, true, -1, true);
+				writeToOutputByToken(JUMP, (yyvsp[-5]), true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, (yyvsp[-4]), true, -1, true, -1, true);
 			}
 #line 1598 "parser.c" /* yacc.c:1646  */
     break;
@@ -1614,13 +1614,13 @@ yyreduce:
 				if(SymbolTable[(yyvsp[-1])].type == REAL)
 				{
 					int convertedVal = insertTempSymbol(INTEGER);
-					writeToOutputByToken(_REALTOINT, convertedVal, true, (yyvsp[-1]), true, -1, true);
+					writeToOutputByToken(REALTOINT, convertedVal, true, (yyvsp[-1]), true, -1, true);
 					(yyvsp[-1]) = convertedVal;
 				}
 				// wyciagnij indeks array w tablicy symboli i jej poczatkowy indeks
 				int startIndex = SymbolTable[(yyvsp[-3])].arrayInfo.startId;
 				int realIndex = insertTempSymbol(INTEGER); //zmienna na $3 startowy rzeczywisty
-				writeToOutputByToken(_MINUS, realIndex, true, (yyvsp[-1]), true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
+				writeToOutputByToken(MINUS, realIndex, true, (yyvsp[-1]), true, startIndex, true);	// odejmij od indeksu indeks poczatkowy
 				//dodaj numy jak nie ma
 				int arrayElementSize = 0;
 				if(SymbolTable[(yyvsp[-3])].type == INTEGER)
@@ -1632,10 +1632,10 @@ yyreduce:
 					arrayElementSize = insertNum("8",INTEGER);
 				}
 				//element * pozycja
-				writeToOutputByToken(_MUL, realIndex, true, realIndex, true, arrayElementSize, true);
+				writeToOutputByToken(MUL, realIndex, true, realIndex, true, arrayElementSize, true);
 				int varWithAddresOfArrayElement = insertTempSymbol(INTEGER);
 				//adres początku tablicy + adres elementu w tablicy i mamy w efekcie adres z wartością w tablicy
-				writeToOutputByToken(_PLUS, varWithAddresOfArrayElement, true, (yyvsp[-3]), false, realIndex, true);
+				writeToOutputByToken(PLUS, varWithAddresOfArrayElement, true, (yyvsp[-3]), false, realIndex, true);
 				//ustaw, że jest to adres referentychny bo nie wskazuje na wartość lecz na wskaźnik pod którym jest wartość adresu, ustawienei typu na int/real
 				SymbolTable[varWithAddresOfArrayElement].isReference = true;
 				SymbolTable[varWithAddresOfArrayElement].type = SymbolTable[(yyvsp[-3])].type;
@@ -1685,11 +1685,11 @@ yyreduce:
 					{
 						if((yyvsp[-3]) == r)
 						{
-							 writeToOutputByToken(_READ, element,true, -1, true, -1, true );
+							 writeToOutputByToken(READ, element,true, -1, true, -1, true );
 						}
 						if((yyvsp[-3]) == w)
 						{
-							 writeToOutputByToken(_WRITE,element,true, -1, true, -1, true );
+							 writeToOutputByToken(WRITE,element,true, -1, true, -1, true );
 						}
 					}
 				}
@@ -1741,7 +1741,7 @@ yyreduce:
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
-							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 							incspCount+=4; // zwieksz adres parametrów
 							it++;
 						}
@@ -1755,17 +1755,17 @@ yyreduce:
 						{
 							// zmienna na wartość zwracaną
 							int id = insertTempSymbol(SymbolTable[index].type);
-							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 							incspCount+=4;	// zwiększ rozmiar
 							(yyval) = id;
 						}
 						// generuj call
-						writeToOutputByToken(_CALL, index,true,-1,true,-1,true);
+						writeToOutputByToken(CALL, index,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
 						//generuj incsp
 						int incspNum = insertNum(helper.str(),INTEGER);
-						writeToOutputByToken(_INCSP,incspNum,true,-1,true,-1,true);
+						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else
 					{
@@ -1816,13 +1816,13 @@ yyreduce:
 			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, badVal, true);
 			//label ostatni za którym idzie dalsza część programu ten po obu (0 i 1)
 			int newLabelFinish = insertLabel();
-			writeToOutputByToken(_JUMP, newLabelFinish, true, -1, true, -1, true);
+			writeToOutputByToken(JUMP, newLabelFinish, true, -1, true, -1, true);
 			//jeżeli warunek spełniony
-			writeToOutputByToken(_LABEL, newLabelPass, true, -1, true, -1, true);
+			writeToOutputByToken(LABEL, newLabelPass, true, -1, true, -1, true);
 			int goodVal = insertNum("1",INTEGER);
 			writeToOutputByToken(ASSIGN, resultVar, true, -1, true, goodVal, true);//ustawia resultVar na 1 (warunek spełniony)
 			//Label za całym wyrażeniem
-			writeToOutputByToken(_LABEL, newLabelFinish, true, -1, true, -1, true);
+			writeToOutputByToken(LABEL, newLabelFinish, true, -1, true, -1, true);
 			(yyval) = resultVar;
 		}
 #line 1829 "parser.c" /* yacc.c:1646  */
@@ -1831,11 +1831,11 @@ yyreduce:
   case 52:
 #line 516 "parser.y" /* yacc.c:1646  */
     {
-				if((yyvsp[-1]) == _PLUS)
+				if((yyvsp[-1]) == PLUS)
 				{
 					 (yyval) = (yyvsp[0]);
 				}
-				else if((yyvsp[-1]) == _MINUS)
+				else if((yyvsp[-1]) == MINUS)
 				{
 					//SUB //odejmie od 0 naszą wartość z term
 					(yyval) = insertTempSymbol(SymbolTable[(yyvsp[0])].type);
@@ -1950,7 +1950,7 @@ yyreduce:
 								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
-							writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 							incspCount+=4; // zwieksz adres parametrów
 							it++;
 						}
@@ -1962,16 +1962,16 @@ yyreduce:
 						}
 						// zmienna na wartość zwracaną
 						int id = insertTempSymbol(SymbolTable[index].type);
-						writeToOutputByToken(_PUSH,id,false,-1, true, -1, true);
+						writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
 						incspCount += 4;	// zwiększ rozmiar
 						(yyval) = id;
 						// generuj call
-						writeToOutputByToken(_CALL, index,true,-1,true,-1,true);
+						writeToOutputByToken(CALL, index,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
 						// generuj incsp
 						int incspNum = insertNum(helper.str(),INTEGER);
-						writeToOutputByToken(_INCSP,incspNum,true,-1,true,-1,true);
+						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else if(SymbolTable[index].token==PROC)
 					{
@@ -2002,20 +2002,20 @@ yyreduce:
 				int labelFactorEqualZero = insertLabel();
 				int zeroId = insertNum("0",INTEGER);
 				//jeq jeżeli factor == 0 skacz do miejsca w którym ustawimy wartość na 1
-				writeToOutputByToken(_EQ,labelFactorEqualZero, true, (yyvsp[0]), true,  zeroId, true);
+				writeToOutputByToken(EQ,labelFactorEqualZero, true, (yyvsp[0]), true,  zeroId, true);
 				//jeżeli factor był inny niż 0 to zapisz 0 to zmiennej jak boło to samo to nie wykona bo przeskoczył
 				int varWithNotResult = insertTempSymbol(INTEGER);
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, zeroId, true);
 				//jump na koniec
 				int labelFinishNOT = insertLabel();
-				writeToOutputByToken(_JUMP, labelFinishNOT, true, -1, true, -1, true);
+				writeToOutputByToken(JUMP, labelFinishNOT, true, -1, true, -1, true);
 				//miejsce w którym wpisujemy 1 (bo factor był 0)
-				writeToOutputByToken(_LABEL, labelFactorEqualZero, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, labelFactorEqualZero, true, -1, true, -1, true);
 				int num1 = insertNum("1",INTEGER);
 				//jeżeli factor był 0 to zapisz 1
 				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, num1, true);
 				//label kończący NOT'a
-				writeToOutputByToken(_LABEL, labelFinishNOT, true, -1, true, -1, true);
+				writeToOutputByToken(LABEL, labelFinishNOT, true, -1, true, -1, true);
 				(yyval) = varWithNotResult;
 			}
 #line 2022 "parser.c" /* yacc.c:1646  */
