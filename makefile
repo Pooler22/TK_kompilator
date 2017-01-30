@@ -1,12 +1,9 @@
 cc = g++
 flags = -pedantic
-
-objects = inc.o inc.h SymbolTableHelper.o SymbolTableHelper.h emitter.o lexer.o main.o parser.o symbol.o
+objects = inc.o inc.h emitter.o lexer.o main.o parser.o symbol.o
 
 comp: $(objects)
-	$(cc) $(flags) $(objects) -o comp -lfl
-SymbolTableHelper.o: SymbolTableHelper.c global.h
-	$(cc) $(flags) -c SymbolTableHelper.c -o SymbolTableHelper.o
+	$(cc)  $(flags) $(objects) -o comp -lfl
 lexer.c: lexer.l global.h
 	flex -o lexer.c lexer.l
 parser.c parser.h: parser.y

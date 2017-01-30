@@ -7,7 +7,7 @@ using namespace std;
 using std::cout;
 using std::setw;
 
-extern ofstream stream;
+extern ofstream outputStream;
 stringstream ss;
 
 int getResultType(int id1, int id2) {
@@ -177,7 +177,7 @@ void writeToOutputByToken(int operand, int resultVar, bool isValueResult, int le
 		size_t pos = res.find("??");
 		ss << "#" << -1 * getSymbolAddress(string(""));
 		res.replace(pos, 2, ss.str());
-		stream.write(res.c_str(), res.size());
+		outputStream.write(res.c_str(), res.size());
 		ss.str(string());
 	} 
 	else if (operand >= _EQ && operand <= _L) {
@@ -292,7 +292,7 @@ void writeIntToOutput(int i) {
 }
 
 void writeToFile() {
-	stream.write(ss.str().c_str(), ss.str().size());
+	outputStream.write(ss.str().c_str(), ss.str().size());
 	ss.str(string()); //clear
 }
 

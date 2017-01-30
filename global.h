@@ -10,16 +10,14 @@
 #include <utility>
 #include <list>
 #include "inc.h"
-#include "SymbolTableHelper.h"
 
 using namespace std;
 
-extern bool isGlobal;//zmienna na aktualny zakres
-extern int lineno;//nr linii
-extern SymbolTableHelper test;
-extern vector<Symbol> SymbolTable;//TS
-extern ofstream stream;//stream do zapisu
-extern FILE* yyin;//plik wejściowy dla leksera
+extern bool isGlobal;
+extern int lineno;
+extern vector<Symbol> SymbolTable;
+extern ofstream outputStream;//stream do zapisu
+extern FILE* yyin;
 
 void writeStrToOutput(string str);
 void addVariable(int index, int type);
