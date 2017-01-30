@@ -48,8 +48,6 @@ void checkSymbolExist(int);
 //symbol.c
 int insertTempSymbol(int);
 int insertLabel();
-void addVariable(int, int);
-void addArray(int, int, int, ArrayInfo);
 int getSymbolAddress(string);
 int getSymbolSize(Symbol);
 string tokenToString(int);

@@ -7,6 +7,7 @@ int variablesCount = 0;
 int labelsCount = 1;
 vector <Symbol> SymbolTable;
 
+
 int insert(string name, int token, int type) {
 	Symbol symbol;
 	symbol.token = token;
@@ -40,19 +41,6 @@ int insertLabel() {
 	string name = "lab" + to_string(labelsCount++);
 	int id = insert(name, LABEL, NONE);
 	return id;
-}
-
-void addVariable(int index, int type){
-    SymbolTable[index].token = VAR;
-	SymbolTable[index].type = type;
-	SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
-}
-
-void addArray(int index, int token, int type, ArrayInfo arrayInfo){
-    SymbolTable[index].token = token;
-	SymbolTable[index].type = type;
-	SymbolTable[index].arrayInfo = arrayInfo;
-	SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 }
 
 void initSymbolTable(){

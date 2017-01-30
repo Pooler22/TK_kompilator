@@ -68,17 +68,16 @@
 
 	using namespace std;
 
-/* 	int arrayTypeHelpery;	//lista na parametry funkcji */
-	int arrayElementTypeHelper;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
+	int tmpArrayElementType;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
 	int startOffsertParamtersFunProcHelper = 8;	// 8 dla proc 12 dla fun
-	ArrayInfo arrayInfoHelper;
-	vector<int> argParamVectorHelper; //lista zmiennych którym później będzie przydzielony typ podczas deklaracji | lista argumentów funkcji write, ride
+	ArrayInfo tmpArrayInfo;
+	vector<int> tmpArgParamVector; //lista zmiennych którym później będzie przydzielony typ podczas deklaracji | lista argumentów funkcji write, ride
 	list<pair<int, ArrayInfo> > paramHelper;	//lista na parametry funkcji
 	list<int> funParamsHelper; //LISTA DO OBLICZANIA INCSP
 
 	void yyerror(char const* s);
 
-#line 82 "parser.c" /* yacc.c:339  */
+#line 81 "parser.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -157,7 +156,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 161 "parser.c" /* yacc.c:358  */
+#line 160 "parser.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -457,13 +456,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    47,    47,    52,    46,    60,    61,    65,    70,    78,
-      98,   102,   103,   116,   117,   121,   122,   126,   141,   150,
-     155,   140,   164,   173,   163,   181,   191,   195,   216,   239,
-     243,   244,   248,   249,   253,   257,   258,   260,   269,   259,
-     281,   291,   280,   303,   308,   345,   367,   474,   478,   485,
-     489,   514,   515,   529,   534,   543,   544,   552,   576,   657,
-     658,   662,   687
+       0,    46,    46,    51,    45,    59,    60,    64,    69,    77,
+     102,   106,   107,   120,   121,   125,   126,   130,   145,   155,
+     160,   144,   170,   180,   169,   188,   199,   203,   222,   245,
+     249,   250,   254,   255,   259,   263,   264,   266,   274,   265,
+     285,   293,   284,   305,   310,   347,   369,   476,   480,   487,
+     491,   516,   517,   531,   536,   545,   546,   554,   578,   659,
+     660,   664,   689
 };
 #endif
 
@@ -1318,52 +1317,57 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 47 "parser.y" /* yacc.c:1646  */
+#line 46 "parser.y" /* yacc.c:1646  */
     {
 				writeToOutput("lab0:");
 			}
-#line 1326 "parser.c" /* yacc.c:1646  */
+#line 1325 "parser.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 52 "parser.y" /* yacc.c:1646  */
+#line 51 "parser.y" /* yacc.c:1646  */
     {
 				writeToOutputExt("","exit","",";exit ","");
 				writeToFile();
 			}
-#line 1335 "parser.c" /* yacc.c:1646  */
+#line 1334 "parser.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 66 "parser.y" /* yacc.c:1646  */
+#line 65 "parser.y" /* yacc.c:1646  */
     {
 				checkSymbolExist((yyvsp[0]));
-				argParamVectorHelper.push_back((yyvsp[0]));
+				tmpArgParamVector.push_back((yyvsp[0]));
 			}
-#line 1344 "parser.c" /* yacc.c:1646  */
+#line 1343 "parser.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 71 "parser.y" /* yacc.c:1646  */
+#line 70 "parser.y" /* yacc.c:1646  */
     {
 				checkSymbolExist((yyvsp[0]));
-				argParamVectorHelper.push_back((yyvsp[0]));
+				tmpArgParamVector.push_back((yyvsp[0]));
 			}
-#line 1353 "parser.c" /* yacc.c:1646  */
+#line 1352 "parser.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 79 "parser.y" /* yacc.c:1646  */
+#line 78 "parser.y" /* yacc.c:1646  */
     {
-			for(auto &element : argParamVectorHelper)
+			for(auto &index : tmpArgParamVector)
 			{
 				if((yyvsp[-1]) == INTEGER || (yyvsp[-1]) == REAL)
 				{
-					addVariable(element,(yyvsp[-1]));
+					SymbolTable[index].token = VAR;
+					SymbolTable[index].type = (yyvsp[-1]);
+					SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 				}
 				else if((yyvsp[-1]) == ARRAY)
 				{
-					addArray(element, (yyvsp[-1]), arrayElementTypeHelper, arrayInfoHelper);
+					SymbolTable[index].token = (yyvsp[-1]);
+					SymbolTable[index].type = tmpArrayElementType;
+					SymbolTable[index].arrayInfo = tmpArrayInfo;
+					SymbolTable[index].address = getSymbolAddress(SymbolTable[index].name);
 				}
 				else
 				{
@@ -1371,27 +1375,27 @@ yyreduce:
 					YYERROR;
 				}
 			}
-			argParamVectorHelper.clear();
+			tmpArgParamVector.clear();
 		}
-#line 1377 "parser.c" /* yacc.c:1646  */
+#line 1381 "parser.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 104 "parser.y" /* yacc.c:1646  */
+#line 108 "parser.y" /* yacc.c:1646  */
     {
 				(yyval) = ARRAY;
-				arrayElementTypeHelper = (yyvsp[0]);
-				arrayInfoHelper.startId = (yyvsp[-6]);
-				arrayInfoHelper.stopId = (yyvsp[-3]);
-				arrayInfoHelper.startVal = atoi(SymbolTable[(yyvsp[-6])].name.c_str());
-				arrayInfoHelper.stopVal = atoi(SymbolTable[(yyvsp[-3])].name.c_str());
-				arrayInfoHelper.argType = (yyvsp[0]);
+				tmpArrayElementType = (yyvsp[0]);
+				tmpArrayInfo.startId = (yyvsp[-6]);
+				tmpArrayInfo.stopId = (yyvsp[-3]);
+				tmpArrayInfo.startVal = atoi(SymbolTable[(yyvsp[-6])].name.c_str());
+				tmpArrayInfo.stopVal = atoi(SymbolTable[(yyvsp[-3])].name.c_str());
+				tmpArrayInfo.argType = (yyvsp[0]);
 			}
-#line 1391 "parser.c" /* yacc.c:1646  */
+#line 1395 "parser.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 127 "parser.y" /* yacc.c:1646  */
+#line 131 "parser.y" /* yacc.c:1646  */
     { 
 				//end of fun/proc
 				writeToOutputExt("","leave","",";leave ","");
@@ -1402,69 +1406,73 @@ yyreduce:
 				isGlobal = true;
 				startOffsertParamtersFunProcHelper = 8;
 			}
-#line 1406 "parser.c" /* yacc.c:1646  */
+#line 1410 "parser.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 141 "parser.y" /* yacc.c:1646  */
+#line 145 "parser.y" /* yacc.c:1646  */
     {	
 				const int functionOffset = 12;
+				
 				checkSymbolExist((yyvsp[0]));
 				SymbolTable[(yyvsp[0])].token = FUN;
 				isGlobal = false;
 				startOffsertParamtersFunProcHelper = functionOffset;
 				writeToOutputByToken(FUN, (yyvsp[0]) ,true ,-1 ,true ,-1 ,true);
 			}
-#line 1419 "parser.c" /* yacc.c:1646  */
+#line 1424 "parser.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 150 "parser.y" /* yacc.c:1646  */
+#line 155 "parser.y" /* yacc.c:1646  */
     {	
 				SymbolTable[(yyvsp[-2])].parameters = paramHelper;
 				paramHelper.clear();
 			}
-#line 1428 "parser.c" /* yacc.c:1646  */
+#line 1433 "parser.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 155 "parser.y" /* yacc.c:1646  */
+#line 160 "parser.y" /* yacc.c:1646  */
     {	
 				const int functionReturnOffset = 12;
+				
 				SymbolTable[(yyvsp[-5])].type = (yyvsp[0]);	//return type ????????????????
-				int returnVarible = insert(SymbolTable[(yyvsp[-5])].name ,VAR ,(yyvsp[0])); 	
-				SymbolTable[returnVarible].isReference = true;
-				SymbolTable[returnVarible].address = functionReturnOffset;
+				int index = insert(SymbolTable[(yyvsp[-5])].name ,VAR ,(yyvsp[0])); 	
+				SymbolTable[index].isReference = true;
+				SymbolTable[index].address = functionReturnOffset;
 			}
-#line 1440 "parser.c" /* yacc.c:1646  */
+#line 1446 "parser.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 164 "parser.y" /* yacc.c:1646  */
+#line 170 "parser.y" /* yacc.c:1646  */
     { 	
 				const int procedureOffset = 8;
+				
 				checkSymbolExist((yyvsp[0]));
 				SymbolTable[(yyvsp[0])].token = PROC;
 				isGlobal = false;
 				startOffsertParamtersFunProcHelper = procedureOffset;
 				writeToOutputByToken(PROC ,(yyvsp[0]) ,true ,-1 ,true ,-1 ,true);
 			}
-#line 1453 "parser.c" /* yacc.c:1646  */
+#line 1460 "parser.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 173 "parser.y" /* yacc.c:1646  */
+#line 180 "parser.y" /* yacc.c:1646  */
     {	
 				SymbolTable[(yyvsp[-2])].parameters = paramHelper;
 				paramHelper.clear();
 			}
-#line 1462 "parser.c" /* yacc.c:1646  */
+#line 1469 "parser.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 182 "parser.y" /* yacc.c:1646  */
+#line 189 "parser.y" /* yacc.c:1646  */
     {
 				const int argumentSize = 4;
+				
 				for(auto &argument : funParamsHelper)
 				{
 					SymbolTable[argument].address = startOffsertParamtersFunProcHelper;
@@ -1472,142 +1480,136 @@ yyreduce:
 				}
 				funParamsHelper.clear();
 			}
-#line 1476 "parser.c" /* yacc.c:1646  */
+#line 1484 "parser.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 196 "parser.y" /* yacc.c:1646  */
-    {	
-			//WRZUCA Z argParamVectorHelper DO PARAMETERS(ABY PRZEKAZAĆ DO ST DO TEGO ID) I FUNpARMS(DO LICZENIA OFFSETÓW)
-				//wrzuca do funParamsHelper (dzieki temu później będą policzone offsety)
-				for(auto &element : argParamVectorHelper){
+#line 204 "parser.y" /* yacc.c:1646  */
+    {
+				for(auto &element : tmpArgParamVector){
 					SymbolTable[element].isReference = true;
 					if((yyvsp[0]) == ARRAY)
 					{
 						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = arrayElementTypeHelper;
-						SymbolTable[element].arrayInfo = arrayInfoHelper;
+						SymbolTable[element].type = tmpArrayElementType;
+						SymbolTable[element].arrayInfo = tmpArrayInfo;
 					}
 					else
 					{
 						SymbolTable[element].type = (yyvsp[0]);
 					}
-					paramHelper.push_back(make_pair((yyvsp[0]), arrayInfoHelper));	// dodaj do listy argumentów
-					funParamsHelper.push_front(element);	// lista po której będą nadawane adresy
+					paramHelper.push_back(make_pair((yyvsp[0]), tmpArrayInfo));
+					funParamsHelper.push_front(element);
 				}
-				argParamVectorHelper.clear();
+				tmpArgParamVector.clear();
 			}
-#line 1501 "parser.c" /* yacc.c:1646  */
+#line 1507 "parser.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 217 "parser.y" /* yacc.c:1646  */
+#line 223 "parser.y" /* yacc.c:1646  */
     {
-				for(auto &element : argParamVectorHelper)
+				for(auto &element : tmpArgParamVector)
 				{
 					SymbolTable[element].isReference = true;
 					if((yyvsp[0]) == ARRAY)
 					{
 						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = arrayElementTypeHelper;
-						SymbolTable[element].arrayInfo = arrayInfoHelper;
+						SymbolTable[element].type = tmpArrayElementType;
+						SymbolTable[element].arrayInfo = tmpArrayInfo;
 					}
 					else
 					{
 						 SymbolTable[element].type = (yyvsp[0]);
 					}
-					paramHelper.push_back(make_pair((yyvsp[0]), arrayInfoHelper));	// dodaj do listy argumentów
-					funParamsHelper.push_front(element);	// lista po której będą nadawane adresy
+					paramHelper.push_back(make_pair((yyvsp[0]), tmpArrayInfo));
+					funParamsHelper.push_front(element);
 				}
-				argParamVectorHelper.clear();
+				tmpArgParamVector.clear();
 			}
-#line 1525 "parser.c" /* yacc.c:1646  */
+#line 1531 "parser.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 254 "parser.y" /* yacc.c:1646  */
+#line 260 "parser.y" /* yacc.c:1646  */
     {
 				writeToOutputByToken(ASSIGN,(yyvsp[-2]),true,-1, true,(yyvsp[0]),true);
 			}
-#line 1533 "parser.c" /* yacc.c:1646  */
+#line 1539 "parser.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 260 "parser.y" /* yacc.c:1646  */
+#line 266 "parser.y" /* yacc.c:1646  */
     {	
-				//ZRÓB LABEL $2 SPRAWDŹ CZY expression == 0 JAK NIE SKACZ
-				int firstLabel = insertLabel();
-				int newNumInST = insertNum("0",INTEGER);
-				//jump dla niespełnionego warunku (expression=0), czy $2(expression) jest równe newNumInST czyli(0)
-				writeToOutputByToken(EQ, firstLabel, true, (yyvsp[0]), true, newNumInST, true);
-				(yyvsp[0]) = firstLabel;
+				////jump if expression = 0
+				int label1 = insertLabel();
+				int num = insertNum("0",INTEGER);
+				(yyvsp[0]) = label1;
+				writeToOutputByToken(EQ, label1, true, (yyvsp[0]), true, num, true);
 			}
-#line 1546 "parser.c" /* yacc.c:1646  */
+#line 1551 "parser.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 269 "parser.y" /* yacc.c:1646  */
+#line 274 "parser.y" /* yacc.c:1646  */
     {	
-				//RÓB LABEL2 $5 RÓB JUMPA DO $5, RÓB LABEL $2
-				int secondLabel = insertLabel();
-				(yyvsp[0]) = secondLabel;
-				writeToOutputByToken(JUMP, secondLabel, true, -1, true, -1, true);
+				int label2 = insertLabel();
+				(yyvsp[0]) = label2;
+				writeToOutputByToken(JUMP, label2, true, -1, true, -1, true);
 				writeToOutputByToken(LABEL, (yyvsp[-3]), true, -1, true, -1, true);
 			}
-#line 1558 "parser.c" /* yacc.c:1646  */
+#line 1562 "parser.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 277 "parser.y" /* yacc.c:1646  */
+#line 281 "parser.y" /* yacc.c:1646  */
     {
 				writeToOutputByToken(LABEL, (yyvsp[-3]), true, -1, true, -1, true);
 			}
-#line 1566 "parser.c" /* yacc.c:1646  */
+#line 1570 "parser.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 281 "parser.y" /* yacc.c:1646  */
+#line 285 "parser.y" /* yacc.c:1646  */
     {	
-				//RÓB START $1 I STOP SS->$2 LABEL, WYPISZ STARTLABEL
-				int stopLabel = insertLabel();
-				int startLabel = insertLabel();
-				(yyvsp[0]) = startLabel;
-				//Wstawia nowy token pod $2, kolejne poniżej będą przesunięte $2 --> $3
-				(yyval) = stopLabel;
-				writeToOutputByToken(LABEL, startLabel, true, -1, true, -1, true);
+				int labelStop = insertLabel();
+				int labelStart = insertLabel();
+				(yyval) = labelStop;
+				(yyvsp[0]) = labelStart;
+				writeToOutputByToken(LABEL, labelStart, true, -1, true, -1, true);
 			}
-#line 1580 "parser.c" /* yacc.c:1646  */
+#line 1582 "parser.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 291 "parser.y" /* yacc.c:1646  */
-    {	//JAK WARUNEK NIE SPEŁNIONY UCIEKAJ DO STOP
-				int v = insertNum("0",INTEGER);
-				writeToOutputByToken(EQ, (yyvsp[-2]), true, (yyvsp[-1]), true, v, true);
+#line 293 "parser.y" /* yacc.c:1646  */
+    {
+				int id = insertNum("0",INTEGER);
+				writeToOutputByToken(EQ, (yyvsp[-2]), true, (yyvsp[-1]), true, id, true);
 			}
-#line 1589 "parser.c" /* yacc.c:1646  */
+#line 1591 "parser.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 296 "parser.y" /* yacc.c:1646  */
-    {	//RÓB JUMP DO START I LABEL STOPU
+#line 298 "parser.y" /* yacc.c:1646  */
+    {
 				writeToOutputByToken(JUMP, (yyvsp[-5]), true, -1, true, -1, true);
 				writeToOutputByToken(LABEL, (yyvsp[-4]), true, -1, true, -1, true);
 			}
-#line 1598 "parser.c" /* yacc.c:1646  */
+#line 1600 "parser.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 304 "parser.y" /* yacc.c:1646  */
+#line 306 "parser.y" /* yacc.c:1646  */
     {
 				checkSymbolExist((yyvsp[0]));
 				(yyval) = (yyvsp[0]);
 			}
-#line 1607 "parser.c" /* yacc.c:1646  */
+#line 1609 "parser.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 309 "parser.y" /* yacc.c:1646  */
+#line 311 "parser.y" /* yacc.c:1646  */
     {	//JAK SIMPLE_EXP REAL TO ZMIEŃ NA INT, ODEJMIJ OD INDEKSU INDEX STARTOWY(WYPISZ MINUS)
 				//MNOŻENIE INDEKSU RAZY TYP OCZLICZENIE ADRESU ELEMENTU W NOWEJ ZMIENNEJ, ZMIANA NA REF
 				//jak real zmien na int
@@ -1641,11 +1643,11 @@ yyreduce:
 				SymbolTable[varWithAddresOfArrayElement].type = SymbolTable[(yyvsp[-3])].type;
 				(yyval) = varWithAddresOfArrayElement;
 			}
-#line 1645 "parser.c" /* yacc.c:1646  */
+#line 1647 "parser.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 346 "parser.y" /* yacc.c:1646  */
+#line 348 "parser.y" /* yacc.c:1646  */
     {	
 				// wywołanie func/proc np aaa;WYWOŁANIE BEZ PARAMETRÓW GENERUJ CALL #SSS
 				checkSymbolExist((yyvsp[0]));
@@ -1667,21 +1669,21 @@ yyreduce:
 					YYERROR;
 				}
 			}
-#line 1671 "parser.c" /* yacc.c:1646  */
+#line 1673 "parser.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 368 "parser.y" /* yacc.c:1646  */
+#line 370 "parser.y" /* yacc.c:1646  */
     {	//JAK READ WRITE WYPISZ ..
 				//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
-				//USUŃ Z argParamVectorHelper, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA GENERUJ CALL I INCSP
+				//USUŃ Z tmpArgParamVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA GENERUJ CALL I INCSP
 				int index = (yyvsp[-3]);
 				int w = lookup("write");
 				int r = lookup("read");
 				if(index == w || index == r)
 				{
-					//dla każdego elementu z argParamVectorHelper
-					for(auto &element : argParamVectorHelper)
+					//dla każdego elementu z tmpArgParamVector
+					for(auto &element : tmpArgParamVector)
 					{
 						if((yyvsp[-3]) == r)
 						{
@@ -1705,7 +1707,7 @@ yyreduce:
 					if(SymbolTable[index].token == FUN || SymbolTable[index].token == PROC)
 					{
 					//podano za mało parametrów
-						if(argParamVectorHelper.size() < SymbolTable[index].parameters.size())
+						if(tmpArgParamVector.size() < SymbolTable[index].parameters.size())
 						{
 							yyerror("Nieprawidłowa liczba parametrów.");
 							YYERROR;
@@ -1714,11 +1716,11 @@ yyreduce:
 						int incspCount = 0;
 						//iterator po argumentach
 						list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
-						int startPoint = argParamVectorHelper.size() - SymbolTable[index].parameters.size();
+						int startPoint = tmpArgParamVector.size() - SymbolTable[index].parameters.size();
 						// przejdź po argumentach
-						for(int i = startPoint; i < argParamVectorHelper.size(); i++)
+						for(int i = startPoint; i < tmpArgParamVector.size(); i++)
 						{
-							int id = argParamVectorHelper[i];
+							int id = tmpArgParamVector[i];
 							// typ argumentu procedury/funkcji
 							int argumentType = (*it).first;
 							if(argumentType == ARRAY)
@@ -1726,11 +1728,11 @@ yyreduce:
 								argumentType = (*it).second.argType;
 							}
 							// jeśli przekazujemy NUM to stwórz nowy obiekt w tablicy
-							if(SymbolTable[argParamVectorHelper[i]].token == NUM)
+							if(SymbolTable[tmpArgParamVector[i]].token == NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
+								writeToOutputByToken(ASSIGN,numVar,true, -1, true, tmpArgParamVector[i], true);
 								id = numVar;
 							}
 							// typ przekazywany
@@ -1746,10 +1748,10 @@ yyreduce:
 							it++;
 						}
 						// usun z wektora argumenty
-						int size = argParamVectorHelper.size();
+						int size = tmpArgParamVector.size();
 						for(int i = startPoint;i<size;i++)
 						{
-							argParamVectorHelper.pop_back();
+							tmpArgParamVector.pop_back();
 						}
 						if(SymbolTable[index].token==FUN)
 						{
@@ -1773,37 +1775,37 @@ yyreduce:
 						YYERROR;
 					}
 				}
-				argParamVectorHelper.clear();
+				tmpArgParamVector.clear();
 			}
-#line 1779 "parser.c" /* yacc.c:1646  */
+#line 1781 "parser.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 475 "parser.y" /* yacc.c:1646  */
+#line 477 "parser.y" /* yacc.c:1646  */
     {
-				argParamVectorHelper.push_back((yyvsp[0]));
+				tmpArgParamVector.push_back((yyvsp[0]));
 			}
-#line 1787 "parser.c" /* yacc.c:1646  */
+#line 1789 "parser.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 479 "parser.y" /* yacc.c:1646  */
+#line 481 "parser.y" /* yacc.c:1646  */
     {
-				argParamVectorHelper.push_back((yyvsp[0]));
+				tmpArgParamVector.push_back((yyvsp[0]));
 			}
-#line 1795 "parser.c" /* yacc.c:1646  */
+#line 1797 "parser.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 486 "parser.y" /* yacc.c:1646  */
+#line 488 "parser.y" /* yacc.c:1646  */
     {
 				(yyval) = (yyvsp[0]);
 			}
-#line 1803 "parser.c" /* yacc.c:1646  */
+#line 1805 "parser.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 490 "parser.y" /* yacc.c:1646  */
+#line 492 "parser.y" /* yacc.c:1646  */
     {
 			//GENERUJE LABELE I SKACZE W ZALEŻNOŚCI CZY SPEŁNIONY WARUNEK ZWRACA RESULTVAR
 			int newLabelPass = insertLabel();
@@ -1825,11 +1827,11 @@ yyreduce:
 			writeToOutputByToken(LABEL, newLabelFinish, true, -1, true, -1, true);
 			(yyval) = resultVar;
 		}
-#line 1829 "parser.c" /* yacc.c:1646  */
+#line 1831 "parser.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 516 "parser.y" /* yacc.c:1646  */
+#line 518 "parser.y" /* yacc.c:1646  */
     {
 				if((yyvsp[-1]) == PLUS)
 				{
@@ -1843,39 +1845,39 @@ yyreduce:
 					writeToOutputByToken((yyvsp[-1]), (yyval), true, tempVar, true, (yyvsp[0]), true);
 				}
 			}
-#line 1847 "parser.c" /* yacc.c:1646  */
+#line 1849 "parser.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 530 "parser.y" /* yacc.c:1646  */
+#line 532 "parser.y" /* yacc.c:1646  */
     {	//GENERUJE OPERACJE + LUB - ZWRACA WYNIK
 				(yyval) = insertTempSymbol(getResultType((yyvsp[-2]), (yyvsp[0])));
 				writeToOutputByToken((yyvsp[-1]), (yyval), true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			}
-#line 1856 "parser.c" /* yacc.c:1646  */
+#line 1858 "parser.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 535 "parser.y" /* yacc.c:1646  */
+#line 537 "parser.y" /* yacc.c:1646  */
     {	//GENERUJE OR ZWRACA WYNIK
 				int tmp = insertTempSymbol(INTEGER);
 				(yyval) = tmp;
 				writeToOutputByToken(OR, tmp, true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			}
-#line 1866 "parser.c" /* yacc.c:1646  */
+#line 1868 "parser.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 545 "parser.y" /* yacc.c:1646  */
+#line 547 "parser.y" /* yacc.c:1646  */
     {
 				(yyval) = insertTempSymbol(getResultType((yyvsp[-2]), (yyvsp[0])));
 				writeToOutputByToken((yyvsp[-1]), (yyval), true, (yyvsp[-2]), true, (yyvsp[0]), true);
 			}
-#line 1875 "parser.c" /* yacc.c:1646  */
+#line 1877 "parser.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 553 "parser.y" /* yacc.c:1646  */
+#line 555 "parser.y" /* yacc.c:1646  */
     {	//PROC NIE MOŻE BO NIE ZWRACA WYNIKU, WIĘC WYWOŁANIE FUNKCJI BEZ PARM  LUB ZMIENNA
 				//JAK FUN GENERUJ PUSH CALL I INCSP JAK ZMIENNA ZWRÓĆ VARIABLE JAK FUN ADRES ZWROTNY
 					int funCalled = (yyvsp[0]);
@@ -1899,13 +1901,13 @@ yyreduce:
 					}
 					(yyval) = funCalled;
 				}
-#line 1903 "parser.c" /* yacc.c:1646  */
+#line 1905 "parser.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 577 "parser.y" /* yacc.c:1646  */
+#line 579 "parser.y" /* yacc.c:1646  */
     { 	//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
-					//USUŃ Z argParamVectorHelper, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA
+					//USUŃ Z tmpArgParamVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA
 					//GENERUJ CALL I INCSP
 				string name = SymbolTable[(yyvsp[-3])].name;
 				int index = lookupForFunction(name);
@@ -1916,7 +1918,7 @@ yyreduce:
 				}
 				if(SymbolTable[index].token == FUN)
 				{
-					if(argParamVectorHelper.size()<SymbolTable[index].parameters.size())
+					if(tmpArgParamVector.size()<SymbolTable[index].parameters.size())
 					{
 						yyerror("Nieprawidłowa liczba parametrów.");
 						YYERROR;
@@ -1925,20 +1927,20 @@ yyreduce:
 					int incspCount = 0;
 					//iterator po argumentach
 					list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
-					int startPoint = argParamVectorHelper.size() - SymbolTable[index].parameters.size();
+					int startPoint = tmpArgParamVector.size() - SymbolTable[index].parameters.size();
 					// przejdź po argumentach
-					for(int i=startPoint;i<argParamVectorHelper.size();i++)
+					for(int i=startPoint;i<tmpArgParamVector.size();i++)
 					{
-						int id = argParamVectorHelper[i];
+						int id = tmpArgParamVector[i];
 						// typ argumentu procedury/funkcji
 						int argumentType = (*it).first;
 						if(argumentType==ARRAY) argumentType = (*it).second.argType;
 						// jeśli przekazujemy NUM to stwórz nowy obiekt w tablicy
-							if(SymbolTable[argParamVectorHelper[i]].token==NUM)
+							if(SymbolTable[tmpArgParamVector[i]].token==NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
+								writeToOutputByToken(ASSIGN,numVar,true, -1, true, tmpArgParamVector[i], true);
 								id = numVar;
 							}
 							// typ przekazywany
@@ -1955,10 +1957,10 @@ yyreduce:
 							it++;
 						}
 						// usun z wektora argumenty
-						int size = argParamVectorHelper.size();
+						int size = tmpArgParamVector.size();
 						for(int i = startPoint;i<size;i++)
 						{
-							argParamVectorHelper.pop_back();
+							tmpArgParamVector.pop_back();
 						}
 						// zmienna na wartość zwracaną
 						int id = insertTempSymbol(SymbolTable[index].type);
@@ -1984,19 +1986,19 @@ yyreduce:
 						YYERROR;
 					}
 				}
-#line 1988 "parser.c" /* yacc.c:1646  */
+#line 1990 "parser.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 659 "parser.y" /* yacc.c:1646  */
+#line 661 "parser.y" /* yacc.c:1646  */
     {
 				(yyval) = (yyvsp[-1]);
 			}
-#line 1996 "parser.c" /* yacc.c:1646  */
+#line 1998 "parser.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 663 "parser.y" /* yacc.c:1646  */
+#line 665 "parser.y" /* yacc.c:1646  */
     {	
 			//RÓB LABELE JAK 0 TO SKACZ JAK NIE TO TEŻ SKACZ ...
 				int labelFactorEqualZero = insertLabel();
@@ -2018,19 +2020,19 @@ yyreduce:
 				writeToOutputByToken(LABEL, labelFinishNOT, true, -1, true, -1, true);
 				(yyval) = varWithNotResult;
 			}
-#line 2022 "parser.c" /* yacc.c:1646  */
+#line 2024 "parser.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 688 "parser.y" /* yacc.c:1646  */
+#line 690 "parser.y" /* yacc.c:1646  */
     {
 				return 0;
 			}
-#line 2030 "parser.c" /* yacc.c:1646  */
+#line 2032 "parser.c" /* yacc.c:1646  */
     break;
 
 
-#line 2034 "parser.c" /* yacc.c:1646  */
+#line 2036 "parser.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2258,7 +2260,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 693 "parser.y" /* yacc.c:1906  */
+#line 695 "parser.y" /* yacc.c:1906  */
 
 
 void yyerror(char const *s)

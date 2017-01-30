@@ -53,7 +53,7 @@ lab12:
 lab13:
         mov.i   #1,BP-48
 lab14:
-        je.i    BP-48,#0,#lab15
+        je.i    ,#0,#lab15
         sub.i BP-4,#1,BP-52
         mul.i    BP-52,#4,BP-52
         add.i BP+8,BP-52,BP-56
