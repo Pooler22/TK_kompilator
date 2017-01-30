@@ -1,13 +1,13 @@
-#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <string.h>
+// #include <string.h>
 #include <string>
+#include <vector>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <utility>
+// #include <utility>
 #include <list>
 #include "symbol.h"
 
@@ -68,7 +68,6 @@ int getResultType(int, int);
 int getToken(string);
 void writeToOutputByToken(int, int, bool, int, bool, int, bool);
 void writeToOutput(string);
-void writeStrToOutput(string);
 void writeIntToOutput(int);
 void writeToFile();
 void writeToOutputExt(string, string, string, string, string);

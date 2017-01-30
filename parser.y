@@ -3,13 +3,12 @@
 
 	using namespace std;
 
-	int arrayTypeHelpery;	//lista na parametry funkcji
-	int typeArrayElement;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
-	int funcProcParmOffset = 8;	//początek offsetu parametrów fun/proc 8 dla proc 12 dla fun
-	ArrayInfo array_range;	//zakres tablicy ma start i stop
-	vector<int> argsVector; //lista zmiennych którym później będzie przydzielony typ podczas deklaracji | lista argumentów funkcji write, ride
-	list<pair<int, ArrayInfo> > parameters;	//lista na parametry funkcji
-	list<int> funParams; //LISTA DO OBLICZANIA INCSP
+	int arrayElementTypeHelper;	//zmienna pomocnicza dla array do przekazania typu po deklaracji
+	int startOffsertParamtersFunProcHelper = 8;	// 8 dla proc 12 dla fun
+	ArrayInfo arrayInfoHelper;
+	vector<int> argParamVectorHelper; //lista zmiennych którym później będzie przydzielony typ podczas deklaracji | lista argumentów funkcji write, ride
+	list<pair<int, ArrayInfo> > paramHelper;	//lista na parametry funkcji
+	list<int> funParamsHelper; //LISTA DO OBLICZANIA INCSP
 
 	void yyerror(char const* s);
 %}
@@ -65,19 +64,19 @@ identifier_list:
 		ID
 			{
 				checkSymbolExist($1);
-				argsVector.push_back($1);
+				argParamVectorHelper.push_back($1);
 			}
 	| identifier_list ',' ID
 			{
 				checkSymbolExist($3);
-				argsVector.push_back($3);
+				argParamVectorHelper.push_back($3);
 			}
 	;
 
 declarations:
 	declarations VAR identifier_list ':' type ';'
 		{
-			for(auto &element : argsVector)
+			for(auto &element : argParamVectorHelper)
 			{
 				if($5 == INTEGER || $5 == REAL)
 				{
@@ -85,7 +84,7 @@ declarations:
 				}
 				else if($5 == ARRAY)
 				{
-					addArray(element, $5, typeArrayElement, array_range);
+					addArray(element, $5, arrayElementTypeHelper, arrayInfoHelper);
 				}
 				else
 				{
@@ -93,7 +92,7 @@ declarations:
 					YYERROR;
 				}
 			}
-			argsVector.clear();
+			argParamVectorHelper.clear();
 		}
 	| //empty
 	;
@@ -103,12 +102,12 @@ type:
 	| ARRAY '[' NUM '.' '.' NUM ']' OF standard_type
 			{
 				$$ = ARRAY;
-				typeArrayElement = $9;
-				array_range.startId = $3;
-				array_range.stopId = $6;
-				array_range.startVal = atoi(SymbolTable[$3].name.c_str());
-				array_range.stopVal = atoi(SymbolTable[$6].name.c_str());
-				array_range.argType = $9;
+				arrayElementTypeHelper = $9;
+				arrayInfoHelper.startId = $3;
+				arrayInfoHelper.stopId = $6;
+				arrayInfoHelper.startVal = atoi(SymbolTable[$3].name.c_str());
+				arrayInfoHelper.stopVal = atoi(SymbolTable[$6].name.c_str());
+				arrayInfoHelper.argType = $9;
 			}
 	;
 
@@ -132,7 +131,7 @@ subprogram_declaration:
 				//reset
 				clearLocalSymbols();
 				isGlobal = true;
-				funcProcParmOffset = 8;
+				startOffsertParamtersFunProcHelper = 8;
 			}
 	;
 
@@ -143,13 +142,13 @@ subprogram_head:
 				checkSymbolExist($2);
 				SymbolTable[$2].token = FUN;
 				isGlobal = false;
-				funcProcParmOffset = functionOffset;
+				startOffsertParamtersFunProcHelper = functionOffset;
 				writeToOutputByToken(FUN, $2 ,true ,-1 ,true ,-1 ,true);
 			}
 		arguments
 			{	
-				SymbolTable[$2].parameters = parameters;
-				parameters.clear();
+				SymbolTable[$2].parameters = paramHelper;
+				paramHelper.clear();
 			}
 		':' standard_type
 			{	
@@ -166,13 +165,13 @@ subprogram_head:
 				checkSymbolExist($2);
 				SymbolTable[$2].token = PROC;
 				isGlobal = false;
-				funcProcParmOffset = procedureOffset;
+				startOffsertParamtersFunProcHelper = procedureOffset;
 				writeToOutputByToken(PROC ,$2 ,true ,-1 ,true ,-1 ,true);
 			}
 		arguments
 			{	
-				SymbolTable[$2].parameters = parameters;
-				parameters.clear();
+				SymbolTable[$2].parameters = paramHelper;
+				paramHelper.clear();
 			}
 		';'
 	;
@@ -181,12 +180,12 @@ arguments:
 		'(' parameter_list ')'
 			{
 				const int argumentSize = 4;
-				for(auto &argument : funParams)
+				for(auto &argument : funParamsHelper)
 				{
-					SymbolTable[argument].address = funcProcParmOffset;
-					funcProcParmOffset += argumentSize;
+					SymbolTable[argument].address = startOffsertParamtersFunProcHelper;
+					startOffsertParamtersFunProcHelper += argumentSize;
 				}
-				funParams.clear();
+				funParamsHelper.clear();
 			}
 	| //empty
 	;
@@ -194,44 +193,44 @@ arguments:
 parameter_list:
 		identifier_list ':' type
 			{	
-			//WRZUCA Z argsVector DO PARAMETERS(ABY PRZEKAZAĆ DO ST DO TEGO ID) I FUNpARMS(DO LICZENIA OFFSETÓW)
-				//wrzuca do funParams (dzieki temu później będą policzone offsety)
-				for(auto &element : argsVector){
+			//WRZUCA Z argParamVectorHelper DO PARAMETERS(ABY PRZEKAZAĆ DO ST DO TEGO ID) I FUNpARMS(DO LICZENIA OFFSETÓW)
+				//wrzuca do funParamsHelper (dzieki temu później będą policzone offsety)
+				for(auto &element : argParamVectorHelper){
 					SymbolTable[element].isReference = true;
 					if($3 == ARRAY)
 					{
 						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = typeArrayElement;
-						SymbolTable[element].arrayInfo = array_range;
+						SymbolTable[element].type = arrayElementTypeHelper;
+						SymbolTable[element].arrayInfo = arrayInfoHelper;
 					}
 					else
 					{
 						SymbolTable[element].type = $3;
 					}
-					parameters.push_back(make_pair($3, array_range));	// dodaj do listy argumentów
-					funParams.push_front(element);	// lista po której będą nadawane adresy
+					paramHelper.push_back(make_pair($3, arrayInfoHelper));	// dodaj do listy argumentów
+					funParamsHelper.push_front(element);	// lista po której będą nadawane adresy
 				}
-				argsVector.clear();
+				argParamVectorHelper.clear();
 			}
 	| parameter_list ';' identifier_list ':' type
 			{
-				for(auto &element : argsVector)
+				for(auto &element : argParamVectorHelper)
 				{
 					SymbolTable[element].isReference = true;
 					if($5 == ARRAY)
 					{
 						SymbolTable[element].token = ARRAY;
-						SymbolTable[element].type = typeArrayElement;
-						SymbolTable[element].arrayInfo = array_range;
+						SymbolTable[element].type = arrayElementTypeHelper;
+						SymbolTable[element].arrayInfo = arrayInfoHelper;
 					}
 					else
 					{
 						 SymbolTable[element].type = $5;
 					}
-					parameters.push_back(make_pair($5, array_range));	// dodaj do listy argumentów
-					funParams.push_front(element);	// lista po której będą nadawane adresy
+					paramHelper.push_back(make_pair($5, arrayInfoHelper));	// dodaj do listy argumentów
+					funParamsHelper.push_front(element);	// lista po której będą nadawane adresy
 				}
-				argsVector.clear();
+				argParamVectorHelper.clear();
 			}
 	;
 
@@ -355,7 +354,7 @@ procedure_statement:
 					}
 					else
 					{
-						writeStrToOutput("\tcall.i #" + SymbolTable[$1].name);
+						writeToOutput("\tcall.i #" + SymbolTable[$1].name);
 					}
 				}
 				else
@@ -367,14 +366,14 @@ procedure_statement:
 	| ID '(' expression_list ')'
 			{	//JAK READ WRITE WYPISZ ..
 				//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
-				//USUŃ Z argsVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA GENERUJ CALL I INCSP
+				//USUŃ Z argParamVectorHelper, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA GENERUJ CALL I INCSP
 				int index = $1;
 				int w = lookup("write");
 				int r = lookup("read");
 				if(index == w || index == r)
 				{
-					//dla każdego elementu z argsVector
-					for(auto &element : argsVector)
+					//dla każdego elementu z argParamVectorHelper
+					for(auto &element : argParamVectorHelper)
 					{
 						if($1 == r)
 						{
@@ -398,7 +397,7 @@ procedure_statement:
 					if(SymbolTable[index].token == FUN || SymbolTable[index].token == PROC)
 					{
 					//podano za mało parametrów
-						if(argsVector.size() < SymbolTable[index].parameters.size())
+						if(argParamVectorHelper.size() < SymbolTable[index].parameters.size())
 						{
 							yyerror("Nieprawidłowa liczba parametrów.");
 							YYERROR;
@@ -407,11 +406,11 @@ procedure_statement:
 						int incspCount = 0;
 						//iterator po argumentach
 						list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
-						int startPoint = argsVector.size() - SymbolTable[index].parameters.size();
+						int startPoint = argParamVectorHelper.size() - SymbolTable[index].parameters.size();
 						// przejdź po argumentach
-						for(int i = startPoint; i < argsVector.size(); i++)
+						for(int i = startPoint; i < argParamVectorHelper.size(); i++)
 						{
-							int id = argsVector[i];
+							int id = argParamVectorHelper[i];
 							// typ argumentu procedury/funkcji
 							int argumentType = (*it).first;
 							if(argumentType == ARRAY)
@@ -419,11 +418,11 @@ procedure_statement:
 								argumentType = (*it).second.argType;
 							}
 							// jeśli przekazujemy NUM to stwórz nowy obiekt w tablicy
-							if(SymbolTable[argsVector[i]].token == NUM)
+							if(SymbolTable[argParamVectorHelper[i]].token == NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argsVector[i], true);
+								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
 								id = numVar;
 							}
 							// typ przekazywany
@@ -439,10 +438,10 @@ procedure_statement:
 							it++;
 						}
 						// usun z wektora argumenty
-						int size = argsVector.size();
+						int size = argParamVectorHelper.size();
 						for(int i = startPoint;i<size;i++)
 						{
-							argsVector.pop_back();
+							argParamVectorHelper.pop_back();
 						}
 						if(SymbolTable[index].token==FUN)
 						{
@@ -466,18 +465,18 @@ procedure_statement:
 						YYERROR;
 					}
 				}
-				argsVector.clear();
+				argParamVectorHelper.clear();
 			}
 	;
 
 expression_list:
 		expression
 			{
-				argsVector.push_back($1);
+				argParamVectorHelper.push_back($1);
 			}
 	| expression_list ',' expression
 			{
-				argsVector.push_back($3);
+				argParamVectorHelper.push_back($3);
 			}
 	;
 
@@ -575,7 +574,7 @@ factor:
 				}
 	| ID '(' expression_list ')'
 			{ 	//OBLICZ incspCount, FOR {KONWERTUJ TYPY I WRZUĆ NUMY DO PRZEKAZANIA JAKO PARMETRY FUNKCJI GENERUJ PUSHA}
-					//USUŃ Z argsVector, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA
+					//USUŃ Z argParamVectorHelper, ZRÓB ZMIENNĄ NA RETURN I JĄ ZWRÓĆ JAK FUNKCJA
 					//GENERUJ CALL I INCSP
 				string name = SymbolTable[$1].name;
 				int index = lookupForFunction(name);
@@ -586,7 +585,7 @@ factor:
 				}
 				if(SymbolTable[index].token == FUN)
 				{
-					if(argsVector.size()<SymbolTable[index].parameters.size())
+					if(argParamVectorHelper.size()<SymbolTable[index].parameters.size())
 					{
 						yyerror("Nieprawidłowa liczba parametrów.");
 						YYERROR;
@@ -595,20 +594,20 @@ factor:
 					int incspCount = 0;
 					//iterator po argumentach
 					list<pair<int,ArrayInfo> >::iterator it=SymbolTable[index].parameters.begin();
-					int startPoint = argsVector.size() - SymbolTable[index].parameters.size();
+					int startPoint = argParamVectorHelper.size() - SymbolTable[index].parameters.size();
 					// przejdź po argumentach
-					for(int i=startPoint;i<argsVector.size();i++)
+					for(int i=startPoint;i<argParamVectorHelper.size();i++)
 					{
-						int id = argsVector[i];
+						int id = argParamVectorHelper[i];
 						// typ argumentu procedury/funkcji
 						int argumentType = (*it).first;
 						if(argumentType==ARRAY) argumentType = (*it).second.argType;
 						// jeśli przekazujemy NUM to stwórz nowy obiekt w tablicy
-							if(SymbolTable[argsVector[i]].token==NUM)
+							if(SymbolTable[argParamVectorHelper[i]].token==NUM)
 							{
 								// zmienna tymczasowa tworz od razu o takim typie, jakiego wymaga funkcja
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argsVector[i], true);
+								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
 								id = numVar;
 							}
 							// typ przekazywany
@@ -625,10 +624,10 @@ factor:
 							it++;
 						}
 						// usun z wektora argumenty
-						int size = argsVector.size();
+						int size = argParamVectorHelper.size();
 						for(int i = startPoint;i<size;i++)
 						{
-							argsVector.pop_back();
+							argParamVectorHelper.pop_back();
 						}
 						// zmienna na wartość zwracaną
 						int id = insertTempSymbol(SymbolTable[index].type);

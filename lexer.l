@@ -56,18 +56,10 @@ while				{return WHILE;}
 {sign}				{yylval = getToken(yytext); return SIGN;}
 {assignop}			{return ASSIGN;}
 
-{id}				{
-						yylval = lookupIfExistAndInsert(yytext, ID, NONE);
-						return ID;
-					}
-{digits}			{
-						yylval = lookupIfExistAndInsert(yytext, NUM, INTEGER);
-						return NUM;
-					}
-{num}				{
-						yylval = lookupIfExistAndInsert(yytext, NUM, REAL);
-						return NUM;
-					}
+{id}				{ yylval = lookupIfExistAndInsert(yytext, ID, NONE); return ID; }
+{digits}			{ yylval = lookupIfExistAndInsert(yytext, NUM, INTEGER); return NUM; }
+{num}				{ yylval = lookupIfExistAndInsert(yytext, NUM, REAL); return NUM; }
+
 <<EOF>>				{return DONE;}
 .					{return *yytext;}
 

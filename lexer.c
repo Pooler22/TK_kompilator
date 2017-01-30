@@ -922,42 +922,33 @@ YY_RULE_SETUP
 case 24:
 YY_RULE_SETUP
 #line 59 "lexer.l"
-{
-						yylval = lookupIfExistAndInsert(yytext, ID, NONE);
-						return ID;
-					}
+{ yylval = lookupIfExistAndInsert(yytext, ID, NONE); return ID; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 63 "lexer.l"
-{
-						yylval = lookupIfExistAndInsert(yytext, NUM, INTEGER);
-						return NUM;
-					}
+#line 60 "lexer.l"
+{ yylval = lookupIfExistAndInsert(yytext, NUM, INTEGER); return NUM; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 67 "lexer.l"
-{
-						yylval = lookupIfExistAndInsert(yytext, NUM, REAL);
-						return NUM;
-					}
+#line 61 "lexer.l"
+{ yylval = lookupIfExistAndInsert(yytext, NUM, REAL); return NUM; }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 71 "lexer.l"
+#line 63 "lexer.l"
 {return DONE;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 72 "lexer.l"
+#line 64 "lexer.l"
 {return *yytext;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 74 "lexer.l"
+#line 66 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 961 "lexer.c"
+#line 952 "lexer.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1956,7 +1947,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 74 "lexer.l"
+#line 66 "lexer.l"
 
 
 

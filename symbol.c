@@ -245,8 +245,6 @@ void printSymbolTable() {
 			}			else if (e.token == PROC || e.token == FUN || e.token == LABEL) {
 				cout << tokenToString(e.token) << " " << e.name << " " << endl;
 			}
-
-
 		}
 	}
 }
