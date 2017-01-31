@@ -1,1 +1,0 @@
-        jump.i  #lab0                   ;jump.i  lab0

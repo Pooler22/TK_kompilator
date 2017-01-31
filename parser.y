@@ -158,7 +158,7 @@ subprogram_head:
 		':' standard_type
 			{	
 				const int functionReturnOffset = 12;
-				SymbolTable[$2].type = $7;	//return type ????????????????
+				SymbolTable[$2].type = $7;
 				int returnVarible = insert(SymbolTable[$2].name ,VAR ,$7); 	
 				SymbolTable[returnVarible].isReference = true;
 				SymbolTable[returnVarible].address = functionReturnOffset;
@@ -259,14 +259,14 @@ statement:
 	| procedure_statement
 	| compound_statement
 	| IF expression
-	 		{	
+	 		{
 				int label1 = insertLabel();
 				int num = insertNum("0",INTEGER);
 				myGenCode(EQ, label1, true, $2, true, num, true);
 				$2 = label1;
 			}
 		THEN statement
-		 	{	
+		 	{
 				int label2 = insertLabel();
 				myGenCode(JUMP, label2, true, -1, true, -1, true);
 				myGenCode(LABEL, $2, true, -1, true, -1, true);
@@ -378,11 +378,8 @@ procedure_statement:
 				{
 					string funName = SymbolTable[$1].name;
 					int finId = lookupForFunction(funName);
-					if(finId == -1)
-					{
-						yyerror("Niezadeklarowana nazwa.");
-						YYERROR;
-					}
+					checkSymbolExist(finId);
+					
 					if(SymbolTable[finId].token == FUN || SymbolTable[finId].token == PROC)
 					{
 						if(argParamVectorHelper.size() < SymbolTable[finId].parameters.size())
@@ -468,17 +465,17 @@ expression:
 			}
 	| simple_expression RELOP simple_expression
 			{
-			int newLabelPass = insertLabel();
-			myGenCode($2, newLabelPass, true, $1, true, $3, true);
+			int labelCorrect = insertLabel();
+			myGenCode($2, labelCorrect, true, $1, true, $3, true);
 			int result = insertTempSymbol(INTEGER);
 			int incorrect = insertNum("0",INTEGER);
 			myGenCode(ASSIGN, result, true, -1, true, incorrect, true);
-			int newLabelFinish = insertLabel();
-			myGenCode(JUMP, newLabelFinish, true, -1, true, -1, true);
-			myGenCode(LABEL, newLabelPass, true, -1, true, -1, true);
+			int labelDone = insertLabel();
+			myGenCode(JUMP, labelDone, true, -1, true, -1, true);
+			myGenCode(LABEL, labelCorrect, true, -1, true, -1, true);
 			int correct = insertNum("1",INTEGER);
 			myGenCode(ASSIGN, result, true, -1, true, correct, true);
-			myGenCode(LABEL, newLabelFinish, true, -1, true, -1, true);
+			myGenCode(LABEL, labelDone, true, -1, true, -1, true);
 			$$ = result;
 		}
 	;
