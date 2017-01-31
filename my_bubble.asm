@@ -5,7 +5,7 @@ czytajtab:
 lab2:
         jl.i    BP-4,#11,#lab3
         mov.i   #0,BP-8
-        jump.i  #lab4
+        jump.i  #lab4                        ;jump.i  
 lab3:
         mov.i   #1,BP-8
 lab4:
@@ -13,10 +13,10 @@ lab4:
         sub.i BP-4,#1,BP-12
         mul.i    BP-12,#4,BP-12
         add.i BP+8,BP-12,BP-16
-        read.i *BP-16
+        read.i *BP-16                        ;read    
         add.i BP-4,#1,BP-20
         mov.i   BP-20,BP-4
-        jump.i  #lab2
+        jump.i  #lab2                        ;jump.i  
 lab1:
         leave                           ;leave   
         return                          ;return  
@@ -26,7 +26,7 @@ bubblesort:
 lab6:
         jl.i    BP-4,#11,#lab7
         mov.i   #0,BP-20
-        jump.i  #lab8
+        jump.i  #lab8                        ;jump.i  
 lab7:
         mov.i   #1,BP-20
 lab8:
@@ -36,7 +36,7 @@ lab8:
 lab10:
         jl.i    BP-8,#11,#lab11
         mov.i   #0,BP-28
-        jump.i  #lab12
+        jump.i  #lab12                        ;jump.i  
 lab11:
         mov.i   #1,BP-28
 lab12:
@@ -49,7 +49,7 @@ lab12:
         add.i BP+8,BP-40,BP-44
         jg.i    *BP-36,*BP-44,#lab13
         mov.i   #0,BP-48
-        jump.i  #lab14
+        jump.i  #lab14                        ;jump.i  
 lab13:
         mov.i   #1,BP-48
 lab14:
@@ -68,17 +68,17 @@ lab14:
         sub.i BP-8,#1,BP-76
         mul.i    BP-76,#4,BP-76
         add.i BP+8,BP-76,BP-80
-        realtoint.r BP-16,*BP-80
-        jump.i  #lab16
+        realtoint.r BP-16,*BP-80                        ;realtoint.r
+        jump.i  #lab16                        ;jump.i  
 lab15:
 lab16:
         add.i BP-8,#1,BP-84
         mov.i   BP-84,BP-8
-        jump.i  #lab10
+        jump.i  #lab10                        ;jump.i  
 lab9:
         add.i BP-4,#1,BP-88
         mov.i   BP-88,BP-4
-        jump.i  #lab6
+        jump.i  #lab6                        ;jump.i  
 lab5:
         leave                           ;leave   
         return                          ;return  
@@ -88,7 +88,7 @@ wypisztab:
 lab18:
         jl.i    BP-4,#11,#lab19
         mov.i   #0,BP-8
-        jump.i  #lab20
+        jump.i  #lab20                        ;jump.i  
 lab19:
         mov.i   #1,BP-8
 lab20:
@@ -96,21 +96,21 @@ lab20:
         sub.i BP-4,#1,BP-12
         mul.i    BP-12,#4,BP-12
         add.i BP+8,BP-12,BP-16
-        write.i *BP-16
+        write.i *BP-16                        ;write   
         add.i BP-4,#1,BP-20
         mov.i   BP-20,BP-4
-        jump.i  #lab18
+        jump.i  #lab18                        ;jump.i  
 lab17:
         leave                           ;leave   
         return                          ;return  
 lab0:
-        push.i #12
-        call.i  #czytajtab
-        incsp.i #4
-        push.i #12
-        call.i  #bubblesort
-        incsp.i #4
-        push.i #12
-        call.i  #wypisztab
-        incsp.i #4
+        push.i #12                        ;push.i  
+        call.i  #czytajtab;call.i                          
+        incsp.i #4                        ;incsp   
+        push.i #12                        ;push.i  
+        call.i  #bubblesort;call.i                          
+        incsp.i #4                        ;incsp   
+        push.i #12                        ;push.i  
+        call.i  #wypisztab;call.i                          
+        incsp.i #4                        ;incsp   
         exit                            ;exit    

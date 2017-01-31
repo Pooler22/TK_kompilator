@@ -223,8 +223,10 @@ void printSymbolTable() {
 			} else if (e.token == ARRAY) {
 				cout << "variable " << e.name << " array [" << e.arrayInfo.startVal << ".." << e.arrayInfo.stopVal
 					 << "] of " << tokenToString(e.type) << " offset=" << e.address << endl;
-			} else if (e.token == PROC || e.token == FUN || e.token == LABEL) {
+			} else if (e.token == PROC  || e.token == LABEL) {
 				cout << tokenToString(e.token) << " " << e.name << " " << endl;
+			} else if (e.token == FUN ) {
+				cout << tokenToString(e.token) << " " << e.name << " " << tokenToString(e.type) << endl;
 			}
 		}
 	}

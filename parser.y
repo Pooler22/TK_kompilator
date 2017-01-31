@@ -131,7 +131,7 @@ subprogram_declaration:
 			{ 
 				//end of fun/proc
 				writeToOutputExt("","leave","",";leave ","");
-				writeToOutputByToken(RETURN,-1,true,-1,true,-1,true);
+				myGenCode(RETURN,-1,true,-1,true,-1,true);
 				printSymbolTable();
 				//reset
 				clearLocalSymbols();
@@ -148,7 +148,7 @@ subprogram_head:
 				SymbolTable[$2].token = FUN;
 				isGlobal = false;
 				startOffsertParamtersFunProcHelper = functionOffset;
-				writeToOutputByToken(FUN, $2 ,true ,-1 ,true ,-1 ,true);
+				myGenCode(FUN, $2 ,true ,-1 ,true ,-1 ,true);
 			}
 		arguments
 			{	
@@ -171,7 +171,7 @@ subprogram_head:
 				SymbolTable[$2].token = PROC;
 				isGlobal = false;
 				startOffsertParamtersFunProcHelper = procedureOffset;
-				writeToOutputByToken(PROC ,$2 ,true ,-1 ,true ,-1 ,true);
+				myGenCode(PROC ,$2 ,true ,-1 ,true ,-1 ,true);
 			}
 		arguments
 			{	
@@ -254,7 +254,7 @@ statement_list:
 statement:
 		variable ASSIGN simple_expression
 			{
-				writeToOutputByToken(ASSIGN,$1,true,-1, true,$3,true);
+				myGenCode(ASSIGN,$1,true,-1, true,$3,true);
 			}
 	| procedure_statement
 	| compound_statement
@@ -262,19 +262,19 @@ statement:
 	 		{	
 				int label1 = insertLabel();
 				int num = insertNum("0",INTEGER);
-				writeToOutputByToken(EQ, label1, true, $2, true, num, true);
+				myGenCode(EQ, label1, true, $2, true, num, true);
 				$2 = label1;
 			}
 		THEN statement
 		 	{	
 				int label2 = insertLabel();
-				writeToOutputByToken(JUMP, label2, true, -1, true, -1, true);
-				writeToOutputByToken(LABEL, $2, true, -1, true, -1, true);
+				myGenCode(JUMP, label2, true, -1, true, -1, true);
+				myGenCode(LABEL, $2, true, -1, true, -1, true);
 				$5 = label2;
 			}
 		ELSE statement
 			{
-				writeToOutputByToken(LABEL, $5, true, -1, true, -1, true);
+				myGenCode(LABEL, $5, true, -1, true, -1, true);
 			}
 	| WHILE
 			{	
@@ -282,16 +282,16 @@ statement:
 				int labelStart = insertLabel();
 				$$ = labelStop;
 				$1 = labelStart;
-				writeToOutputByToken(LABEL, labelStart, true, -1, true, -1, true);
+				myGenCode(LABEL, labelStart, true, -1, true, -1, true);
 			}
 		expression DO
 			{	int id = insertNum("0",INTEGER);
-				writeToOutputByToken(EQ, $2, true, $3, true, id, true);
+				myGenCode(EQ, $2, true, $3, true, id, true);
 			}
 		statement
 			{	
-				writeToOutputByToken(JUMP, $1, true, -1, true, -1, true);
-				writeToOutputByToken(LABEL, $2, true, -1, true, -1, true);
+				myGenCode(JUMP, $1, true, -1, true, -1, true);
+				myGenCode(LABEL, $2, true, -1, true, -1, true);
 			}
 	;
 
@@ -306,13 +306,13 @@ variable:
 				if(SymbolTable[$3].type == REAL)
 				{
 					int t = insertTempSymbol(INTEGER);
-					writeToOutputByToken(REALTOINT, t, true, $3, true, -1, true);
+					myGenCode(REALTOINT, t, true, $3, true, -1, true);
 					$3 = t;
 				}
 				
 				int startId = SymbolTable[$1].arrayInfo.startId;
 				int t1 = insertTempSymbol(INTEGER);
-				writeToOutputByToken(MINUS, t1, true, $3, true, startId, true);
+				myGenCode(MINUS, t1, true, $3, true, startId, true);
 				
 				int arrayElementSize = 0;
 				if(SymbolTable[$1].type == INTEGER)
@@ -324,9 +324,9 @@ variable:
 					arrayElementSize = insertNum("8",INTEGER);
 				}
 				
-				writeToOutputByToken(MUL, t1, true, t1, true, arrayElementSize, true);
+				myGenCode(MUL, t1, true, t1, true, arrayElementSize, true);
 				int addressArray = insertTempSymbol(INTEGER);
-				writeToOutputByToken(PLUS, addressArray, true, $1, false, t1, true);
+				myGenCode(PLUS, addressArray, true, $1, false, t1, true);
 
 				SymbolTable[addressArray].isReference = true;
 				SymbolTable[addressArray].type = SymbolTable[$1].type;
@@ -366,11 +366,11 @@ procedure_statement:
 					{
 						if($1 == rId)
 						{
-							 writeToOutputByToken(READ, index, true, -1, true, -1, true );
+							 myGenCode(READ, index, true, -1, true, -1, true );
 						}
 						if($1 == wId)
 						{
-							 writeToOutputByToken(WRITE, index, true, -1, true, -1, true );
+							 myGenCode(WRITE, index, true, -1, true, -1, true );
 						}
 					}
 				}
@@ -407,17 +407,17 @@ procedure_statement:
 							if(SymbolTable[argParamVectorHelper[i]].token == NUM)
 							{
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
+								myGenCode(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
 								id = numVar;
 							}
 
 							int passedType = SymbolTable[id].type;
 							if(argumentType != passedType){
 								int tempVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
+								myGenCode(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
-							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
+							myGenCode(PUSH,id,false,-1, true, -1, true);
 							incspCount += 4;
 							it++;
 						}
@@ -430,15 +430,15 @@ procedure_statement:
 						if(SymbolTable[$1].token == FUN)
 						{
 							int id = insertTempSymbol(SymbolTable[$1].type);
-							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
+							myGenCode(PUSH,id,false,-1, true, -1, true);
 							incspCount += 4;
 							$$ = id;
 						}
-						writeToOutputByToken(CALL, $1,true,-1,true,-1,true);
+						myGenCode(CALL, $1,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
 						int incspNum = insertNum(helper.str(),INTEGER);
-						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
+						myGenCode(INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else
 					{
@@ -469,16 +469,16 @@ expression:
 	| simple_expression RELOP simple_expression
 			{
 			int newLabelPass = insertLabel();
-			writeToOutputByToken($2, newLabelPass, true, $1, true, $3, true);
+			myGenCode($2, newLabelPass, true, $1, true, $3, true);
 			int result = insertTempSymbol(INTEGER);
 			int incorrect = insertNum("0",INTEGER);
-			writeToOutputByToken(ASSIGN, result, true, -1, true, incorrect, true);
+			myGenCode(ASSIGN, result, true, -1, true, incorrect, true);
 			int newLabelFinish = insertLabel();
-			writeToOutputByToken(JUMP, newLabelFinish, true, -1, true, -1, true);
-			writeToOutputByToken(LABEL, newLabelPass, true, -1, true, -1, true);
+			myGenCode(JUMP, newLabelFinish, true, -1, true, -1, true);
+			myGenCode(LABEL, newLabelPass, true, -1, true, -1, true);
 			int correct = insertNum("1",INTEGER);
-			writeToOutputByToken(ASSIGN, result, true, -1, true, correct, true);
-			writeToOutputByToken(LABEL, newLabelFinish, true, -1, true, -1, true);
+			myGenCode(ASSIGN, result, true, -1, true, correct, true);
+			myGenCode(LABEL, newLabelFinish, true, -1, true, -1, true);
 			$$ = result;
 		}
 	;
@@ -495,18 +495,18 @@ simple_expression:
 				{
 					$$ = insertTempSymbol(SymbolTable[$2].type);
 					int t0 = insertNum("0",SymbolTable[$2].type);
-					writeToOutputByToken($1, $$, true, t0, true, $2, true);
+					myGenCode($1, $$, true, t0, true, $2, true);
 				}
 			}
 	| simple_expression SIGN term
 			{
 				$$ = insertTempSymbol(getResultType($1, $3));
-				writeToOutputByToken($2, $$, true, $1, true, $3, true);
+				myGenCode($2, $$, true, $1, true, $3, true);
 			}
 	| simple_expression OR term
 			{
 				$$ = insertTempSymbol(INTEGER);
-				writeToOutputByToken(OR, $$, true, $1, true, $3, true);
+				myGenCode(OR, $$, true, $1, true, $3, true);
 			}
 	;
 
@@ -515,7 +515,7 @@ term:
 	| term MULOP factor
 			{
 				$$ = insertTempSymbol(getResultType($1, $3));
-				writeToOutputByToken($2, $$, true, $1, true, $3, true);
+				myGenCode($2, $$, true, $1, true, $3, true);
 			}
 	;
 
@@ -574,7 +574,7 @@ factor:
 							if(SymbolTable[argParamVectorHelper[i]].token==NUM)
 							{
 								int numVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
+								myGenCode(ASSIGN,numVar,true, -1, true, argParamVectorHelper[i], true);
 								id = numVar;
 							}
 
@@ -583,10 +583,10 @@ factor:
 							if(argumentType!=passedType)
 							{
 								int tempVar = insertTempSymbol(argumentType);
-								writeToOutputByToken(ASSIGN, tempVar, true, -1, true, id, true);
+								myGenCode(ASSIGN, tempVar, true, -1, true, id, true);
 								id = tempVar;
 							}
-							writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
+							myGenCode(PUSH,id,false,-1, true, -1, true);
 							incspCount += 4;
 							it++;
 						}
@@ -598,16 +598,16 @@ factor:
 						}
 						
 						int id = insertTempSymbol(SymbolTable[index].type);
-						writeToOutputByToken(PUSH,id,false,-1, true, -1, true);
+						myGenCode(PUSH,id,false,-1, true, -1, true);
 						incspCount += 4;
 						$$ = id;
 
-						writeToOutputByToken(CALL, index,true,-1,true,-1,true);
+						myGenCode(CALL, index,true,-1,true,-1,true);
 						stringstream helper;
 						helper << incspCount;
 						
 						int incspNum = insertNum(helper.str(),INTEGER);
-						writeToOutputByToken(INCSP,incspNum,true,-1,true,-1,true);
+						myGenCode(INCSP,incspNum,true,-1,true,-1,true);
 					}
 					else if(SymbolTable[index].token==PROC)
 					{
@@ -629,18 +629,18 @@ factor:
 			{	
 				int labelFactorEqualZero = insertLabel();
 				int zeroId = insertNum("0",INTEGER);
-				writeToOutputByToken(EQ,labelFactorEqualZero, true, $2, true,  zeroId, true);
+				myGenCode(EQ,labelFactorEqualZero, true, $2, true,  zeroId, true);
 
 				int varWithNotResult = insertTempSymbol(INTEGER);
-				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, zeroId, true);
+				myGenCode(ASSIGN,varWithNotResult, true, -1, true, zeroId, true);
 				
 				int labelFinishNOT = insertLabel();
-				writeToOutputByToken(JUMP, labelFinishNOT, true, -1, true, -1, true);
-				writeToOutputByToken(LABEL, labelFactorEqualZero, true, -1, true, -1, true);
+				myGenCode(JUMP, labelFinishNOT, true, -1, true, -1, true);
+				myGenCode(LABEL, labelFactorEqualZero, true, -1, true, -1, true);
 
 				int num1 = insertNum("1",INTEGER);
-				writeToOutputByToken(ASSIGN,varWithNotResult, true, -1, true, num1, true);
-				writeToOutputByToken(LABEL, labelFinishNOT, true, -1, true, -1, true);
+				myGenCode(ASSIGN,varWithNotResult, true, -1, true, num1, true);
+				myGenCode(LABEL, labelFinishNOT, true, -1, true, -1, true);
 				$$ = varWithNotResult;
 			}
 	;

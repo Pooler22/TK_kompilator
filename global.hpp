@@ -61,7 +61,7 @@ void printSymbolTable();
 //emitter.c
 int getResultType(int, int);
 int getToken(string);
-void writeToOutputByToken(int, int, bool, int, bool, int, bool);
+void myGenCode(int, int, bool, int, bool, int, bool);
 void writeToOutput(string);
 void writeIntToOutput(int);
 void writeToFile();
